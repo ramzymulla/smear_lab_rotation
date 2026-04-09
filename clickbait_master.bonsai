@@ -65,7 +65,7 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="cv:VideoWriter">
-          <cv:FileName>E:\data\clickbait-place\data\test\0001\s9\04062026_0001_s9.avi</cv:FileName>
+          <cv:FileName>E:\data\clickbait-place\data\test\0001\s1\04062026_0001_s1.avi</cv:FileName>
           <cv:Suffix>None</cv:Suffix>
           <cv:Buffered>true</cv:Buffered>
           <cv:Overwrite>false</cv:Overwrite>
@@ -93,7 +93,7 @@
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-place\data\test\0001\s9\04062026_0001_s9_video_timestamp.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-place\data\test\0001\s1\04062026_0001_s1_video_timestamp.csv</io:FileName>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>None</io:Suffix>
@@ -913,7 +913,7 @@ def process(value):
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-place\data\test\0001\s9\04062026_0001_s9_eventsA.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-place\data\test\0001\s1\04062026_0001_s1_eventsA.csv</io:FileName>
         <io:Delimiter>,</io:Delimiter>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
@@ -1023,7 +1023,7 @@ def process(value):
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="io:WriteAllText">
-          <io:Path>E:\data\clickbait-place\data\test\0001\s9\04062026_0001_s9_trialcounts.txt</io:Path>
+          <io:Path>E:\data\clickbait-place\data\test\0001\s1\04062026_0001_s1_trialcounts.txt</io:Path>
           <io:Overwrite>true</io:Overwrite>
           <io:Append>false</io:Append>
         </Combinator>
@@ -1048,7 +1048,7 @@ def process(value):
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-place\data\test\0001\s9\04062026_0001_s9_eventsB.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-place\data\test\0001\s1\04062026_0001_s1_eventsB.csv</io:FileName>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>None</io:Suffix>
@@ -1064,7 +1064,7 @@ def process(value):
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="cv:VideoWriter">
-          <cv:FileName>E:\data\clickbait-place\data\test\0001\s9\04062026_0001_s9_raw.avi</cv:FileName>
+          <cv:FileName>E:\data\clickbait-place\data\test\0001\s1\04062026_0001_s1_raw.avi</cv:FileName>
           <cv:Suffix>None</cv:Suffix>
           <cv:Buffered>true</cv:Buffered>
           <cv:Overwrite>false</cv:Overwrite>
