@@ -7,6 +7,8 @@
                  xmlns:cv="clr-namespace:Bonsai.Vision;assembly=Bonsai.Vision"
                  xmlns:io="clr-namespace:Bonsai.IO;assembly=Bonsai.System"
                  xmlns:ipy="clr-namespace:Bonsai.Scripting.IronPython;assembly=Bonsai.Scripting.IronPython"
+                 xmlns:dsp="clr-namespace:Bonsai.Dsp;assembly=Bonsai.Dsp"
+                 xmlns:scr="clr-namespace:Bonsai.Scripting.Expressions;assembly=Bonsai.Scripting.Expressions"
                  xmlns:al="clr-namespace:Bonsai.Audio;assembly=Bonsai.Audio"
                  xmlns:gl="clr-namespace:Bonsai.Shaders;assembly=Bonsai.Shaders"
                  xmlns:res="clr-namespace:Bonsai.Resources;assembly=Bonsai.System"
@@ -43,14 +45,16 @@
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:Slice">
           <rx:Start>0</rx:Start>
-          <rx:Step>3</rx:Step>
+          <rx:Step>7</rx:Step>
           <rx:Stop xsi:nil="true" />
         </Combinator>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="cv:Flip">
-          <cv:Mode>Vertical</cv:Mode>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="cv:Flip">
+            <cv:Mode>Vertical</cv:Mode>
+          </Combinator>
+        </Builder>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="cv:Grayscale" />
@@ -65,11 +69,11 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="cv:VideoWriter">
-          <cv:FileName>E:\data\clickbait-place\data\test\0001\s1\04062026_0001_s1.avi</cv:FileName>
+          <cv:FileName>E:\data\clickbait-place\data\test\2209\h4\04112026_2209_h4.avi</cv:FileName>
           <cv:Suffix>None</cv:Suffix>
           <cv:Buffered>true</cv:Buffered>
           <cv:Overwrite>false</cv:Overwrite>
-          <cv:FourCC>FMP4</cv:FourCC>
+          <cv:FourCC>h265_nvenc</cv:FourCC>
           <cv:FrameRate>30</cv:FrameRate>
           <cv:FrameSize>
             <cv:Width>0</cv:Width>
@@ -93,7 +97,7 @@
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-place\data\test\0001\s1\04062026_0001_s1_video_timestamp.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-place\data\test\2209\h4\04112026_2209_h4_video_timestamp.csv</io:FileName>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>None</io:Suffix>
@@ -320,7 +324,7 @@ def process(value):
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="cv:Threshold">
-          <cv:ThresholdValue>62</cv:ThresholdValue>
+          <cv:ThresholdValue>74</cv:ThresholdValue>
           <cv:MaxValue>255</cv:MaxValue>
           <cv:ThresholdType>Binary</cv:ThresholdType>
         </Combinator>
@@ -383,7 +387,7 @@ def process(value):
       </Expression>
       <Expression xsi:type="LessThan">
         <Operand xsi:type="IntProperty">
-          <Value>40</Value>
+          <Value>900</Value>
         </Operand>
       </Expression>
       <Expression xsi:type="rx:AsyncSubject">
@@ -392,12 +396,12 @@ def process(value):
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="ard:AnalogInput">
           <ard:PortName>Arduino Mega 2560</ard:PortName>
-          <ard:Pin>8</ard:Pin>
+          <ard:Pin>1</ard:Pin>
         </Combinator>
       </Expression>
       <Expression xsi:type="LessThan">
         <Operand xsi:type="IntProperty">
-          <Value>30</Value>
+          <Value>900</Value>
         </Operand>
       </Expression>
       <Expression xsi:type="rx:AsyncSubject">
@@ -421,204 +425,197 @@ import random
 import System
 from System import Array
 
-# Class to generate hexagonal maze coordinates
+# ---------------------------------------------------------------------------
+# GridMaze: stores only cell centers (no vertex arrays).
+# Hex polygon drawing is removed entirely for performance.
+# Cell lookup is now O(1) via axial-coordinate math instead of O(N) loop.
+# ---------------------------------------------------------------------------
 class GridMaze:
     def __init__(self, maze_bounds, grid_radius, scale_factor):
         self.bounds = maze_bounds
         self.radius = grid_radius
         self.cells = []
-        
+
         N = grid_radius
-        # Calculate optimal hex size to fit image bounds
         w_ratio = maze_bounds[0] / (math.sqrt(3) * (2 * N + 1)) if N &gt; 0 else maze_bounds[0]
         h_ratio = maze_bounds[1] / (1.5 * 2 * N + 2) if N &gt; 0 else maze_bounds[1]
-        self.size = min(w_ratio, h_ratio) * scale_factor   # scale size border margin
-        
-        center_x = maze_bounds[0] / 2.0
-        center_y = maze_bounds[1] / 2.0
-        
-        # Generate hex grid using axial coordinates (q, r)
+        self.size = min(w_ratio, h_ratio) * scale_factor
+
+        self.center_x = maze_bounds[0] / 2.0
+        self.center_y = maze_bounds[1] / 2.0
+
+        # Build a (q, r) -&gt; index lookup table for O(1) cell resolution
+        self._coord_to_idx = {}
+
         for q in range(-N, N + 1):
             for r in range(-N, N + 1):
                 if abs(q + r) &lt;= N:
-                    px = center_x + self.size * math.sqrt(3) * (q + r / 2.0)
-                    py = center_y + self.size * 1.5 * r
-                    
-                    # Generate pointy-topped hexagon vertices
-                    verts = []
-                    for i in range(6):
-                        angle_deg = 60 * i - 30
-                        angle_rad = math.pi / 180.0 * angle_deg
-                        vx = px + self.size * math.cos(angle_rad)
-                        vy = py + self.size * math.sin(angle_rad)
-                        verts.append(Point(int(vx), int(vy)))
-                    
-                    arr = Array.CreateInstance(Point, 6)
-                    for i, v in enumerate(verts): 
-                        arr[i] = v
-                    
+                    px = self.center_x + self.size * math.sqrt(3) * (q + r / 2.0)
+                    py = self.center_y + self.size * 1.5 * r
+                    idx = len(self.cells)
                     self.cells.append({
                         'q': q,
                         'r': r,
                         'center': Point(int(px), int(py)),
-                        'vertices': arr
+                        'center_x': px,
+                        'center_y': py,
                     })
+                    self._coord_to_idx[(q, r)] = idx
 
-def draw_hex_outline(img, vertices, color, thickness):
-    for i in range(6):
-        CV.Line(img, vertices[i], vertices[(i+1)%6], color, thickness)
+        # Precompute circle radius for cell visualization (cheaper than polygons)
+        self.viz_radius = int(self.size * 0.45)
 
-def draw_grid(grid, img):
-    for cell in grid.cells:
-        draw_hex_outline(img, cell['vertices'], grid_color, thickness=2)
+    def pixel_to_axial(self, px, py):
+        """
+        Convert a pixel coordinate to the nearest hex axial (q, r) using
+        direct inverse-transform math — O(1), no loop over all cells needed.
+        Returns (q, r, cell_index) or (-1, -1, -1) if outside the grid.
+        """
+        dx = px - self.center_x
+        dy = py - self.center_y
+        s = self.size
+
+        # Inverse of the flat→pixel transform used in __init__
+        q_frac = (dx * math.sqrt(3) / 3.0 - dy / 3.0) / s
+        r_frac = dy * 2.0 / 3.0 / s
+
+        # Axial cube-coordinate rounding
+        x_frac = q_frac
+        z_frac = r_frac
+        y_frac = -x_frac - z_frac
+
+        rx = round(x_frac)
+        ry = round(y_frac)
+        rz = round(z_frac)
+
+        x_diff = abs(rx - x_frac)
+        y_diff = abs(ry - y_frac)
+        z_diff = abs(rz - z_frac)
+
+        if x_diff &gt; y_diff and x_diff &gt; z_diff:
+            rx = -ry - rz
+        elif y_diff &gt; z_diff:
+            ry = -rx - rz
+        else:
+            rz = -rx - ry
+
+        q, r = int(rx), int(rz)
+
+        if abs(q) &gt; self.radius or abs(r) &gt; self.radius or abs(q + r) &gt; self.radius:
+            return -1, -1, -1
+
+        idx = self._coord_to_idx.get((q, r), -1)
+        return q, r, idx
+
 
 def get_image_shape(img):
     size = img.Size
     return [size.Width, size.Height]
 
-def draw_target_distribution(target_distribution, grid, img, max_intensity=255):
-    if sum(target_distribution) &gt; 0:
-        max_prob = max(target_distribution)
-    else:
-        max_prob = 1.0
-    
-    overlay = create_blank_canvas(img.Size.Width, img.Size.Height)
-    
-    for i, prob in enumerate(target_distribution):
-        if prob &gt; 0 and i &lt; len(grid.cells):
-            norm_prob = prob / float(max_prob)
-            intensity = int(norm_prob * max_intensity)
-            dist_color = Scalar.Rgb(intensity, 0, 0)
-            
-            cell = grid.cells[i]
-            CV.FillConvexPoly(overlay, cell['vertices'], dist_color)
-    
-    alpha = 0.5
-    CV.AddWeighted(img, 1.0, overlay, alpha, 0.0, img)
-    
-    return img
-
-global initial_cell_counts
-global max_initial_count
-initial_cell_counts = {}
-max_initial_count = 1
-
-def draw_future_targets(target_queue, grid, img):
-    all_targets = list(target_queue)
-
-    if not all_targets:
-        return img
-
-    overlay = create_blank_canvas(img.Size.Width, img.Size.Height)
-
-    cell_counts = {}
-    for cell_idx in all_targets:
-        if cell_idx in cell_counts:
-            cell_counts[cell_idx] += 1
-        else:
-            cell_counts[cell_idx] = 1
-
-    min_possible_count = 1
-    max_possible_count = 5
-    
-    base_intensity = 50
-    intensity_range = 205
-    
-    for cell_idx, count in cell_counts.items():
-        if cell_idx &lt; len(grid.cells):
-            clamped_count = max(min_possible_count, min(count, max_possible_count))
-            normalized_position = (clamped_count - min_possible_count) / float(max_possible_count - min_possible_count)
-            intensity = base_intensity + int(normalized_position * intensity_range)
-            
-            target_future_color = Scalar.Rgb(0, intensity, intensity)
-
-            cell = grid.cells[cell_idx]
-            CV.FillConvexPoly(overlay, cell['vertices'], target_future_color)
-
-    alpha = 0.5
-    CV.AddWeighted(img, 1.0, overlay, alpha, 0.0, img)
-
-    return img
-
-def get_grid_location(grid, centroid_x, centroid_y, active_target, img, target_radius):
-    closest_dist = 1000000.0
-    closest_idx = -1
-    
-    for i, cell in enumerate(grid.cells):
-        dist = math.sqrt((centroid_x - cell['center'].X)**2 + (centroid_y - cell['center'].Y)**2)
-        if dist &lt; closest_dist:
-            closest_dist = dist
-            closest_idx = i
-
-    q, r = 0, 0
-    if closest_idx != -1 and closest_dist &lt;= grid.size:
-        cell = grid.cells[closest_idx]
-        CV.FillConvexPoly(img, cell['vertices'], mouse_loc_color)
-        q = cell['q']
-        r = cell['r']
-            
-    target_found = False
-    
-    if active_target is not None and 0 &lt;= active_target &lt; len(grid.cells):
-        target_cell = grid.cells[active_target]
-        center_x = target_cell['center'].X
-        center_y = target_cell['center'].Y
-        
-        dist = math.sqrt((centroid_x - center_x)**2 + (centroid_y - center_y)**2)
-        
-        CV.Circle(img, Point(int(center_x), int(center_y)), int(target_radius), threshold_color, thickness=4)
-        CV.Line(img, Point(int(center_x), int(center_y)), Point(int(centroid_x), int(centroid_y)), distance_line_color, thickness=3)
-        
-        if dist &lt;= target_radius:
-            target_found = True
-            
-    return q, r, target_found
 
 def create_blank_canvas(width, height, channels=3, color=(0, 0, 0)):
     depth = IplDepth.U8
     img = IplImage(Size(width, height), depth, channels)
-    if channels == 1:
-        fill_color = Scalar.All(color[0])
-    else:
-        fill_color = Scalar.Rgb(color[0], color[1], color[2])
+    fill_color = Scalar.All(color[0]) if channels == 1 else Scalar.Rgb(color[0], color[1], color[2])
     img.Set(fill_color)
-    
     return img
+
+
+# ---------------------------------------------------------------------------
+# Visualization: circles instead of filled polygons.
+# Much faster: no overlay allocation, no AddWeighted blend, no vertex arrays.
+# ---------------------------------------------------------------------------
+
+def draw_targets_fast(active_target, target_queue, grid, img, target_distribution):
+    """
+    Draws future targets as proportionally-sized circles and the active
+    target as a filled circle. No overlay image or alpha blend needed.
+    """
+    # Precount future targets per cell (same logic, but applied to circles)
+    if target_queue:
+        cell_counts = {}
+        for cell_idx in target_queue:
+            cell_counts[cell_idx] = cell_counts.get(cell_idx, 0) + 1
+
+        min_c = 1
+        max_c = 5
+        base_i = 50
+        range_i = 205
+        r = grid.viz_radius
+
+        for cell_idx, count in cell_counts.items():
+            if cell_idx &lt; len(grid.cells):
+                clamped = max(min_c, min(count, max_c))
+                norm = (clamped - min_c) / float(max_c - min_c)
+                intensity = base_i + int(norm * range_i)
+                color = Scalar.Rgb(0, intensity, intensity)
+                center = grid.cells[cell_idx]['center']
+                CV.Circle(img, center, r, color, -1)
+
+    # Active target: filled white circle
+    if active_target is not None and active_target &lt; len(grid.cells):
+        center = grid.cells[active_target]['center']
+        CV.Circle(img, center, grid.viz_radius, target_color, -1)
+
+
+def get_grid_location_fast(grid, centroid_x, centroid_y, active_target, img, target_radius):
+    """
+    O(1) cell lookup via axial math. Draws a red circle at the mouse cell
+    and the target ring/line if a target is active.
+    """
+    q, r, closest_idx = grid.pixel_to_axial(centroid_x, centroid_y)
+
+    if closest_idx != -1:
+        cell = grid.cells[closest_idx]
+        CV.Circle(img, cell['center'], grid.viz_radius, mouse_loc_color, 2)
+
+    target_found = False
+
+    if active_target is not None and 0 &lt;= active_target &lt; len(grid.cells):
+        target_cell = grid.cells[active_target]
+        tx = target_cell['center_x']
+        ty = target_cell['center_y']
+
+        dist = math.sqrt((centroid_x - tx) ** 2 + (centroid_y - ty) ** 2)
+
+        CV.Circle(img, Point(int(tx), int(ty)), int(target_radius), threshold_color, thickness=4)
+        CV.Line(img, Point(int(tx), int(ty)), Point(int(centroid_x), int(centroid_y)), distance_line_color, thickness=3)
+
+        if dist &lt;= target_radius:
+            target_found = True
+
+    return q, r, target_found
+
 
 def generate_targets(grid_radius, max_targets_per_cell=5, shuffle=True):
     N = grid_radius
     num_cells = 3 * N * (N + 1) + 1
     base_distribution = [0] * num_cells
-    
+
     sigma = N / 2.0 if N &gt; 0 else 1.0
-    
+
     idx = 0
     for q in range(-N, N + 1):
         for r in range(-N, N + 1):
             if abs(q + r) &lt;= N:
-                hex_dist = math.sqrt((q + r / 2.0)**2 * 3 + (r * 1.5)**2)
+                hex_dist = math.sqrt((q + r / 2.0) ** 2 * 3 + (r * 1.5) ** 2)
                 prob = math.exp(-0.5 * (hex_dist / sigma) ** 2)
                 base_distribution[idx] = prob
                 idx += 1
-    
+
     total_prob = sum(base_distribution)
     base_distribution = [p / float(total_prob) for p in base_distribution]
-    
     max_prob = max(base_distribution)
-    
+
     target_counts = {}
-    total_targets = 0
-    
-    for i, prob in enumerate(base_distribution):
-        scaled_targets = 1 + int((prob / max_prob) * (max_targets_per_cell - 1))
-        target_counts[i] = scaled_targets
-        total_targets += scaled_targets
-    
     target_queue = []
-    for cell_idx, count in target_counts.items():
-        for _ in range(count):
-            target_queue.append(cell_idx)
-    
+
+    for i, prob in enumerate(base_distribution):
+        scaled = 1 + int((prob / max_prob) * (max_targets_per_cell - 1))
+        target_counts[i] = scaled
+        for _ in range(scaled):
+            target_queue.append(i)
+
     if shuffle:
         random.shuffle(target_queue)
 
@@ -626,57 +623,24 @@ def generate_targets(grid_radius, max_targets_per_cell=5, shuffle=True):
     if target_queue:
         active_target = target_queue[0]
         target_queue = target_queue[1:]
-    
-    global initial_cell_counts
-    global max_initial_count
-    initial_cell_counts = target_counts.copy()
-    max_initial_count = max_targets_per_cell
-    
+
     return grid_radius, target_queue, base_distribution, active_target
 
-def draw_targets(active_target, target_queue, grid, img, draw_distribution=False, draw_future=False):
-    if draw_distribution:
-        img = draw_target_distribution(target_distribution, grid, img)
-    
-    if draw_future:
-        img = draw_future_targets(target_queue, grid, img)
-    
-    if active_target is not None and active_target &lt; len(grid.cells):
-        cell = grid.cells[active_target]
-        CV.FillConvexPoly(img, cell['vertices'], target_color)
-    
-    return img
 
+# ---------------------------------------------------------------------------
+# Module-level state
+# ---------------------------------------------------------------------------
 
-global grid_radius
-global max_targets_per_cell
-global scale_factor
 grid_radius = 8
 max_targets_per_cell = 10
 scale_factor = 0.75
 
-global target_queue
-global active_target
-global target_distribution
-
 _, target_queue, target_distribution, active_target = generate_targets(grid_radius, max_targets_per_cell)
-
-global trial_count
-global reward_left_count
-global reward_right_count
-global reward_state
-global click
-global click_start_time
-global drinking
-global reward_left
-global reward_right
-global reward_left_start_time
-global reward_right_start_time
 
 trial_count = 0
 reward_left_count = 0
 reward_right_count = 0
-reward_state = True
+reward_state = False        # False = hunting target, True = reward available
 click = False
 click_start_time = 0
 drinking = False
@@ -684,14 +648,6 @@ reward_left = False
 reward_right = False
 reward_left_start_time = 0
 reward_right_start_time = 0
-
-global iti_start_time
-global iti_duration
-global in_iti
-global withdrawal_start_time
-global in_withdrawal_period
-global prev_poke_left
-global prev_poke_right
 
 iti_start_time = 0
 iti_duration = 0
@@ -701,6 +657,11 @@ in_withdrawal_period = False
 prev_poke_left = False
 prev_poke_right = False
 
+# Grid/canvas cache — rebuilt only on image-dimension change
+cached_grid = None
+cached_img_dims = None
+cached_canvas = None        # Reuse the same IplImage allocation each frame
+
 # Visualization parameters
 centroid_color = Scalar.Rgb(255, 255, 255)
 mouse_loc_color = Scalar.Rgb(255, 0, 0)
@@ -709,126 +670,126 @@ grid_color = Scalar.Rgb(128, 128, 128)
 centroid_radius = 5
 threshold_color = Scalar.Rgb(0, 255, 0)
 distance_line_color = Scalar.Rgb(255, 255, 0)
+black = Scalar.All(0)
 
-# Caching variables for the grid
-global cached_grid
-global cached_dims
-cached_grid = None
-cached_dims = None
 
 @returns(tuple)
 def process(value):
-    global trial_count
-    global reward_left_count
-    global reward_right_count
-    global target_queue
-    global active_target
-    global target_distribution
-    global reward_state
-    global click
-    global click_start_time
-    global drinking
-    global reward_left
-    global reward_right
-    global reward_left_start_time
-    global reward_right_start_time
-    global iti_start_time
-    global iti_duration
-    global in_iti
-    global withdrawal_start_time
-    global in_withdrawal_period
-    global prev_poke_left
-    global prev_poke_right
+    global trial_count, reward_left_count, reward_right_count
+    global target_queue, active_target, target_distribution
+    global reward_state, click, click_start_time
+    global drinking, reward_left, reward_right
+    global reward_left_start_time, reward_right_start_time
+    global iti_start_time, iti_duration, in_iti
+    global withdrawal_start_time, in_withdrawal_period
+    global prev_poke_left, prev_poke_right
     global grid_radius
-    
-    # Grid caching globals
-    global cached_grid
-    global cached_dims
+    global cached_grid, cached_img_dims, cached_canvas
 
     current_time = time.time()
-    reward_duration_left = 0.032
+    reward_duration_left  = 0.032
     reward_duration_right = 0.032
-    click_duration = 0.1
-    iti_duration_min = 1.0
-    iti_duration_max = 5.0
-    withdrawal_duration = 0.5
-    
+    click_duration        = 0.1
+    iti_duration_min      = 1.0
+    iti_duration_max      = 5.0
+    withdrawal_duration   = 0.5
+
     target_found_this_frame = False
 
-    centroid_x, centroid_y, image, target_radius = value[0].Item1, value[0].Item2, value[0].Item3, value[0].Item4
-    poke_left, poke_right = bool(value[1][0]), bool(value[1][1])
-    
-    grid_loc_q, grid_loc_r = None, None
-    img_dims = get_image_shape(image)
-    
-    # Only calculate the grid once, or if the camera resolution changes
-    if cached_grid is None or cached_dims != img_dims:
-        cached_grid = GridMaze(img_dims, grid_radius, scale_factor)
-        cached_dims = img_dims
-        
-    grid = cached_grid
-    
-    canvas = create_blank_canvas(img_dims[0], img_dims[1])
+    centroid_x, centroid_y, image, target_radius = (
+        value[0].Item1, value[0].Item2, value[0].Item3, value[0].Item4
+    )
+    poke_left  = bool(value[1][0])
+    poke_right = bool(value[1][1])
 
-    draw_targets(active_target, target_queue, grid, canvas, draw_distribution=False, draw_future=True)
+    # ------------------------------------------------------------------
+    # Grid / canvas cache: rebuild only when image dimensions change.
+    # Reuse the same canvas allocation — just clear it each frame.
+    # ------------------------------------------------------------------
+    img_dims = get_image_shape(image)
+    if img_dims != cached_img_dims:
+        cached_grid     = GridMaze(img_dims, grid_radius, scale_factor)
+        cached_img_dims = img_dims
+        cached_canvas   = create_blank_canvas(img_dims[0], img_dims[1])
+    else:
+        cached_canvas.Set(black)   # Clear without reallocating
+
+    grid   = cached_grid
+    canvas = cached_canvas
+
+    # ------------------------------------------------------------------
+    # Draw future targets + active target (circles, no overlay blend)
+    # ------------------------------------------------------------------
+    draw_targets_fast(active_target, target_queue, grid, canvas, target_distribution)
+
+    # ------------------------------------------------------------------
+    # Mouse position and target detection
+    # ------------------------------------------------------------------
+    grid_loc_q, grid_loc_r = None, None
 
     if not (math.isnan(centroid_x) or math.isnan(centroid_y)):
-        grid_loc_q, grid_loc_r, target_found_this_frame = get_grid_location(grid, centroid_x, centroid_y, active_target, canvas, target_radius)
+        grid_loc_q, grid_loc_r, target_found_this_frame = get_grid_location_fast(
+            grid, centroid_x, centroid_y, active_target, canvas, target_radius
+        )
         CV.Circle(canvas, Point(int(centroid_x), int(centroid_y)), centroid_radius, centroid_color, -1)
-        
+
         if target_found_this_frame and active_target is not None and not reward_state:
             active_target = None
-            reward_state = True
-            click = True
+            reward_state  = True
+            click         = True
             click_start_time = current_time
 
+    # ------------------------------------------------------------------
+    # State machine: ITI → withdrawal → reward
+    # ------------------------------------------------------------------
     if in_iti:
         if current_time - iti_start_time &gt;= iti_duration:
             trial_count += 1
             in_iti = False
-            
             if active_target is None and target_queue:
-                active_target = target_queue[0]
-                target_queue = target_queue[1:]
-            
+                active_target  = target_queue[0]
+                target_queue   = target_queue[1:]
+            # If queue is empty, active_target stays None — session complete.
+
     elif in_withdrawal_period:
         if not (poke_left or poke_right):
             if current_time - withdrawal_start_time &gt;= withdrawal_duration:
                 in_withdrawal_period = False
-                in_iti = True
-                iti_start_time = current_time
-                iti_duration = random.uniform(iti_duration_min, iti_duration_max)
+                in_iti               = True
+                iti_start_time       = current_time
+                iti_duration         = random.uniform(iti_duration_min, iti_duration_max)
         else:
             withdrawal_start_time = current_time
-            
+
     elif reward_state:
         if reward_left and current_time - reward_left_start_time &gt;= reward_duration_left:
-            reward_left = False
+            reward_left          = False
             in_withdrawal_period = True
             withdrawal_start_time = current_time
-            reward_state = False
+            reward_state         = False
         elif reward_right and current_time - reward_right_start_time &gt;= reward_duration_right:
-            reward_right = False
+            reward_right         = False
             in_withdrawal_period = True
             withdrawal_start_time = current_time
-            reward_state = False
+            reward_state         = False
         elif poke_left and not reward_left and not reward_right:
-            reward_left = True
-            reward_left_count += 1
+            reward_left           = True
+            reward_left_count    += 1
             reward_left_start_time = current_time
         elif poke_right and not reward_right and not reward_left:
-            reward_right = True
-            reward_right_count += 1
+            reward_right          = True
+            reward_right_count   += 1
             reward_right_start_time = current_time
 
     if click and current_time - click_start_time &gt;= click_duration:
         click = False
 
-    prev_poke_left, prev_poke_right = poke_left, poke_right
-    drinking = poke_left or poke_right
+    prev_poke_left  = poke_left
+    prev_poke_right = poke_right
+    drinking = reward_state and (poke_left or poke_right)
 
-    return (canvas, Point(centroid_x, centroid_y), reward_state, reward_left, reward_right, 
-            poke_left, poke_right, drinking, in_iti, click, active_target, 
+    return (canvas, Point(centroid_x, centroid_y), reward_state, reward_left, reward_right,
+            poke_left, poke_right, drinking, in_iti, click, active_target,
             trial_count, reward_left_count, reward_right_count, tuple(target_distribution))</ipy:Script>
       </Expression>
       <Expression xsi:type="ipy:PythonTransform">
@@ -844,20 +805,26 @@ def process(value):
 
 </ipy:Script>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="cv:ColorBalance">
-          <cv:Scale>
-            <cv:Val0>0.5</cv:Val0>
-            <cv:Val1>0.5</cv:Val1>
-            <cv:Val2>0.5</cv:Val2>
-            <cv:Val3>0.5</cv:Val3>
-          </cv:Scale>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="cv:ColorBalance">
+            <cv:Scale>
+              <cv:Val0>0.5</cv:Val0>
+              <cv:Val1>0.5</cv:Val1>
+              <cv:Val2>0.5</cv:Val2>
+              <cv:Val3>0.5</cv:Val3>
+            </cv:Scale>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:CombineLatest" />
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="rx:CombineLatest" />
+        </Builder>
       </Expression>
-      <Expression xsi:type="Add" />
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Add" />
+      </Expression>
       <Expression xsi:type="ipy:PythonTransform">
         <ipy:Name>Trial Count</ipy:Name>
         <ipy:Script># Get trial count
@@ -887,19 +854,169 @@ def process(value):
   return value[6]</ipy:Script>
       </Expression>
       <Expression xsi:type="ipy:PythonTransform">
-        <ipy:Name>Mouse Centroid</ipy:Name>
-        <ipy:Script>clr.AddReference("OpenCV.Net")
-from OpenCV.Net import *
-
-@returns(Point)
-def process(value):
-  return value[1]</ipy:Script>
-      </Expression>
-      <Expression xsi:type="ipy:PythonTransform">
         <ipy:Name>Active Target</ipy:Name>
         <ipy:Script>@returns(str)
 def process(value):
   return str(value[10])</ipy:Script>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Orientation</Selector>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:WindowCount">
+          <rx:Count>10</rx:Count>
+          <rx:Skip>1</rx:Skip>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="rx:SelectMany">
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="WorkflowInput">
+              <Name>Source1</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Average" />
+            </Expression>
+            <Expression xsi:type="WorkflowOutput" />
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="1" Label="Source1" />
+            <Edge From="1" To="2" Label="Source1" />
+          </Edges>
+        </Workflow>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="dsp:Difference">
+          <dsp:Order>1</dsp:Order>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="dsp:FrequencyFilter">
+            <dsp:SampleRate>30</dsp:SampleRate>
+            <dsp:Cutoff1>2</dsp:Cutoff1>
+            <dsp:Cutoff2>0</dsp:Cutoff2>
+            <dsp:KernelLength>40</dsp:KernelLength>
+            <dsp:FilterType>LowPass</dsp:FilterType>
+          </Combinator>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:WindowCount">
+          <rx:Count>10</rx:Count>
+          <rx:Skip>1</rx:Skip>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="rx:SelectMany">
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="WorkflowInput">
+              <Name>Source1</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Average" />
+            </Expression>
+            <Expression xsi:type="WorkflowOutput" />
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="1" Label="Source1" />
+            <Edge From="1" To="2" Label="Source1" />
+          </Edges>
+        </Workflow>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="dsp:Difference">
+          <dsp:Order>1</dsp:Order>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="dsp:FrequencyFilter">
+            <dsp:SampleRate>30</dsp:SampleRate>
+            <dsp:Cutoff1>2</dsp:Cutoff1>
+            <dsp:Cutoff2>0</dsp:Cutoff2>
+            <dsp:KernelLength>40</dsp:KernelLength>
+            <dsp:FilterType>LowPass</dsp:FilterType>
+          </Combinator>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:WindowCount">
+          <rx:Count>10</rx:Count>
+          <rx:Skip>1</rx:Skip>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="rx:SelectMany">
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="WorkflowInput">
+              <Name>Source1</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Average" />
+            </Expression>
+            <Expression xsi:type="WorkflowOutput" />
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="1" Label="Source1" />
+            <Edge From="1" To="2" Label="Source1" />
+          </Edges>
+        </Workflow>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="dsp:Difference">
+          <dsp:Order>1</dsp:Order>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="dsp:FrequencyFilter">
+            <dsp:SampleRate>30</dsp:SampleRate>
+            <dsp:Cutoff1>2</dsp:Cutoff1>
+            <dsp:Cutoff2>0</dsp:Cutoff2>
+            <dsp:KernelLength>40</dsp:KernelLength>
+            <dsp:FilterType>LowPass</dsp:FilterType>
+          </Combinator>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Zip" />
+      </Expression>
+      <Expression xsi:type="ipy:PythonTransform">
+        <ipy:Name>ProcessVelocities</ipy:Name>
+        <ipy:Script>import math
+
+global pixDistConv
+global dur
+global minTargetRadius
+minTargetRadius = 50.0
+dur = 1.0/30.0
+pixDistConv = 1
+@returns(tuple)
+def process(value):
+    # print(value[0])
+    # print(value[1])
+    da,dx,dy = value.Item1,value.Item2,value.Item3
+
+    v = pixDistConv*math.hypot(dx, dy)/dur # cm/s
+    angVel = abs(da)/dur # rad/s
+    # print(v)
+    if v &gt; 500:
+        
+        targetRadius = max(angVel, minTargetRadius)
+        # print(angVel)
+    else: 
+        targetRadius = minTargetRadius
+    return (targetRadius,angVel,v)
+</ipy:Script>
+      </Expression>
+      <Expression xsi:type="ipy:PythonTransform">
+        <ipy:Name>TargetRadius</ipy:Name>
+        <ipy:Script># Get target radius
+
+@returns(float)
+def process(value):
+  return value[0]</ipy:Script>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:Zip" />
@@ -913,7 +1030,7 @@ def process(value):
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-place\data\test\0001\s1\04062026_0001_s1_eventsA.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-place\data\test\2209\h4\04112026_2209_h4_eventsA.csv</io:FileName>
         <io:Delimiter>,</io:Delimiter>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
@@ -963,11 +1080,13 @@ def process(value):
 def process(value):
   return value[3]</ipy:Script>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="ard:DigitalOutput">
-          <ard:PortName>Arduino Mega 2560</ard:PortName>
-          <ard:Pin>7</ard:Pin>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="ard:DigitalOutput">
+            <ard:PortName>Arduino Mega 2560</ard:PortName>
+            <ard:Pin>11</ard:Pin>
+          </Combinator>
+        </Builder>
       </Expression>
       <Expression xsi:type="ipy:PythonTransform">
         <ipy:Name>Water Right</ipy:Name>
@@ -977,11 +1096,13 @@ def process(value):
 def process(value):
   return value[4]</ipy:Script>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="ard:DigitalOutput">
-          <ard:PortName>Arduino Mega 2560</ard:PortName>
-          <ard:Pin>8</ard:Pin>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="ard:DigitalOutput">
+            <ard:PortName>Arduino Mega 2560</ard:PortName>
+            <ard:Pin>12</ard:Pin>
+          </Combinator>
+        </Builder>
       </Expression>
       <Expression xsi:type="ipy:PythonTransform">
         <ipy:Name>Reward Right Count</ipy:Name>
@@ -1023,7 +1144,7 @@ def process(value):
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="io:WriteAllText">
-          <io:Path>E:\data\clickbait-place\data\test\0001\s1\04062026_0001_s1_trialcounts.txt</io:Path>
+          <io:Path>E:\data\clickbait-place\data\test\2209\h4\04112026_2209_h4_trialcounts.txt</io:Path>
           <io:Overwrite>true</io:Overwrite>
           <io:Append>false</io:Append>
         </Combinator>
@@ -1048,11 +1169,76 @@ def process(value):
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-place\data\test\0001\s1\04062026_0001_s1_eventsB.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-place\data\test\2209\h4\04112026_2209_h4_eventsB.csv</io:FileName>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>None</io:Suffix>
         <io:IncludeHeader>true</io:IncludeHeader>
+      </Expression>
+      <Expression xsi:type="scr:ExpressionTransform">
+        <scr:Expression>new(
+-it.X + 250 as xTrans,
+-it.Y + 250 as yTrans
+
+)</scr:Expression>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Zip" />
+      </Expression>
+      <Expression xsi:type="PropertyMapping">
+        <PropertyMappings>
+          <Property Name="Pivot" Selector="Item1" />
+          <Property Name="Translation" Selector="Item2.xTrans,Item2.yTrans" />
+        </PropertyMappings>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="cv:AffineTransform">
+          <cv:Pivot>
+            <cv:X>688.3819</cv:X>
+            <cv:Y>368.75415</cv:Y>
+          </cv:Pivot>
+          <cv:Translation>
+            <cv:X>-438.3819</cv:X>
+            <cv:Y>-118.75415</cv:Y>
+          </cv:Translation>
+          <cv:Rotation>0</cv:Rotation>
+          <cv:Scale>
+            <cv:X>1</cv:X>
+            <cv:Y>1</cv:Y>
+          </cv:Scale>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="dsp:RunningAverage">
+          <dsp:Alpha>0.15</dsp:Alpha>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="PropertyMapping">
+        <PropertyMappings>
+          <Property Name="Transform" />
+        </PropertyMappings>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="cv:WarpAffine">
+          <cv:Transform>1,0,-438.3707;0,1,-118.7776</cv:Transform>
+          <cv:Flags>Linear</cv:Flags>
+          <cv:FillValue>
+            <cv:Val0>0</cv:Val0>
+            <cv:Val1>0</cv:Val1>
+            <cv:Val2>0</cv:Val2>
+            <cv:Val3>0</cv:Val3>
+          </cv:FillValue>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="cv:Crop">
+          <cv:RegionOfInterest>
+            <cv:X>0</cv:X>
+            <cv:Y>0</cv:Y>
+            <cv:Width>480</cv:Width>
+            <cv:Height>480</cv:Height>
+          </cv:RegionOfInterest>
+        </Combinator>
       </Expression>
       <Expression xsi:type="SubscribeSubject">
         <Name>RawVideoFilename</Name>
@@ -1064,15 +1250,15 @@ def process(value):
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="cv:VideoWriter">
-          <cv:FileName>E:\data\clickbait-place\data\test\0001\s1\04062026_0001_s1_raw.avi</cv:FileName>
+          <cv:FileName>E:\data\clickbait-place\data\test\2209\h4\04112026_2209_h4_raw.avi</cv:FileName>
           <cv:Suffix>None</cv:Suffix>
           <cv:Buffered>true</cv:Buffered>
           <cv:Overwrite>false</cv:Overwrite>
-          <cv:FourCC>FMP4</cv:FourCC>
-          <cv:FrameRate>120</cv:FrameRate>
+          <cv:FourCC>h264_nvenc</cv:FourCC>
+          <cv:FrameRate>210</cv:FrameRate>
           <cv:FrameSize>
-            <cv:Width>1080</cv:Width>
-            <cv:Height>720</cv:Height>
+            <cv:Width>480</cv:Width>
+            <cv:Height>480</cv:Height>
           </cv:FrameSize>
           <cv:ResizeInterpolation>NearestNeighbor</cv:ResizeInterpolation>
         </Combinator>
@@ -1112,14 +1298,54 @@ def process(value):
           <al:State>Playing</al:State>
         </Combinator>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="FloatProperty">
-          <Value>100</Value>
-        </Combinator>
-      </Expression>
       <Expression xsi:type="rx:ReplaySubject">
         <Name>TargetRadius</Name>
         <rx:BufferSize xsi:nil="true" />
+      </Expression>
+      <Expression xsi:type="ipy:PythonTransform">
+        <ipy:Name>Velocity</ipy:Name>
+        <ipy:Script># Get positional velocity
+
+@returns(float)
+def process(value):
+  return value[2]</ipy:Script>
+      </Expression>
+      <Expression xsi:type="ipy:PythonTransform">
+        <ipy:Name>AngularVelocity</ipy:Name>
+        <ipy:Script># Get angular velocity
+
+@returns(float)
+def process(value):
+  return value[1]</ipy:Script>
+      </Expression>
+      <Expression xsi:type="ipy:PythonTransform">
+        <ipy:Name>Mouse Centroid</ipy:Name>
+        <ipy:Script>clr.AddReference("OpenCV.Net")
+from OpenCV.Net import *
+
+@returns(Point)
+def process(value):
+  return value[1]</ipy:Script>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Zip" />
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>KinematicsFilename</Name>
+      </Expression>
+      <Expression xsi:type="PropertyMapping">
+        <PropertyMappings>
+          <Property Name="FileName" />
+        </PropertyMappings>
+      </Expression>
+      <Expression xsi:type="io:CsvWriter">
+        <io:FileName>E:\data\clickbait-place\data\test\2209\h4\04112026_2209_h4_kinematicA.csv</io:FileName>
+        <io:Delimiter>,</io:Delimiter>
+        <io:Append>false</io:Append>
+        <io:Overwrite>false</io:Overwrite>
+        <io:Suffix>None</io:Suffix>
+        <io:IncludeHeader>true</io:IncludeHeader>
+        <io:Selector>Item1,Item2,Item3</io:Selector>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="al:AudioReader">
@@ -1605,6 +1831,29 @@ def generate():
               <Name>BIN</Name>
               <rx:BufferSize xsi:nil="true" />
             </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>SessionData</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="StringProperty">
+                <Value>_kinematicA</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>CSV</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Zip" />
+            </Expression>
+            <Expression xsi:type="Add" />
+            <Expression xsi:type="Format" />
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="io:GetFullPath" />
+            </Expression>
+            <Expression xsi:type="rx:ReplaySubject">
+              <Name>KinematicsFilename</Name>
+              <rx:BufferSize xsi:nil="true" />
+            </Expression>
           </Nodes>
           <Edges>
             <Edge From="0" To="1" Label="Source1" />
@@ -1687,6 +1936,13 @@ def generate():
             <Edge From="91" To="92" Label="Source1" />
             <Edge From="93" To="94" Label="Source1" />
             <Edge From="95" To="96" Label="Source1" />
+            <Edge From="97" To="100" Label="Source1" />
+            <Edge From="98" To="100" Label="Source2" />
+            <Edge From="99" To="100" Label="Source3" />
+            <Edge From="100" To="101" Label="Source1" />
+            <Edge From="101" To="102" Label="Source1" />
+            <Edge From="102" To="103" Label="Source1" />
+            <Edge From="103" To="104" Label="Source1" />
           </Edges>
         </Workflow>
       </Expression>
@@ -1695,7 +1951,7 @@ def generate():
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="StringProperty">
-          <Value>04062026</Value>
+          <Value>04112026</Value>
         </Combinator>
       </Expression>
       <Expression xsi:type="rx:ReplaySubject">
@@ -1719,7 +1975,7 @@ def generate():
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="StringProperty">
-          <Value>0001</Value>
+          <Value>2209</Value>
         </Combinator>
       </Expression>
       <Expression xsi:type="rx:ReplaySubject">
@@ -1731,7 +1987,7 @@ def generate():
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="StringProperty">
-          <Value>s1</Value>
+          <Value>h4</Value>
         </Combinator>
       </Expression>
       <Expression xsi:type="rx:ReplaySubject">
@@ -1800,13 +2056,12 @@ def generate():
       <Edge From="1" To="2" Label="Source1" />
       <Edge From="3" To="4" Label="Source1" />
       <Edge From="4" To="5" Label="Source1" />
-      <Edge From="4" To="81" Label="Source1" />
+      <Edge From="4" To="100" Label="Source1" />
       <Edge From="5" To="6" Label="Source1" />
       <Edge From="6" To="7" Label="Source1" />
       <Edge From="7" To="10" Label="Source1" />
       <Edge From="7" To="21" Label="Source1" />
       <Edge From="7" To="31" Label="Source1" />
-      <Edge From="7" To="86" Label="Source1" />
       <Edge From="8" To="9" Label="Source1" />
       <Edge From="9" To="10" Label="Source2" />
       <Edge From="10" To="11" Label="Source1" />
@@ -1826,10 +2081,15 @@ def generate():
       <Edge From="25" To="26" Label="Source1" />
       <Edge From="26" To="27" Label="Source1" />
       <Edge From="27" To="28" Label="Source1" />
+      <Edge From="27" To="53" Label="Source1" />
       <Edge From="28" To="29" Label="Source1" />
       <Edge From="28" To="30" Label="Source1" />
+      <Edge From="28" To="94" Label="Source1" />
+      <Edge From="28" To="95" Label="Source1" />
       <Edge From="29" To="33" Label="Source1" />
+      <Edge From="29" To="58" Label="Source1" />
       <Edge From="30" To="33" Label="Source2" />
+      <Edge From="30" To="62" Label="Source1" />
       <Edge From="31" To="33" Label="Source3" />
       <Edge From="31" To="44" Label="Source1" />
       <Edge From="32" To="33" Label="Source4" />
@@ -1848,76 +2108,107 @@ def generate():
       <Edge From="42" To="50" Label="Source1" />
       <Edge From="42" To="51" Label="Source1" />
       <Edge From="42" To="52" Label="Source1" />
-      <Edge From="42" To="53" Label="Source1" />
-      <Edge From="42" To="58" Label="Source1" />
-      <Edge From="42" To="60" Label="Source1" />
-      <Edge From="42" To="63" Label="Source1" />
-      <Edge From="42" To="65" Label="Source1" />
-      <Edge From="42" To="67" Label="Source1" />
-      <Edge From="42" To="68" Label="Source1" />
-      <Edge From="42" To="74" Label="Source1" />
+      <Edge From="42" To="73" Label="Source1" />
+      <Edge From="42" To="75" Label="Source1" />
+      <Edge From="42" To="78" Label="Source1" />
+      <Edge From="42" To="80" Label="Source1" />
+      <Edge From="42" To="82" Label="Source1" />
+      <Edge From="42" To="83" Label="Source1" />
+      <Edge From="42" To="89" Label="Source1" />
+      <Edge From="42" To="112" Label="Source1" />
       <Edge From="43" To="45" Label="Source1" />
       <Edge From="44" To="45" Label="Source2" />
       <Edge From="45" To="46" Label="Source1" />
-      <Edge From="47" To="54" Label="Source1" />
-      <Edge From="47" To="69" Label="Source3" />
+      <Edge From="47" To="69" Label="Source1" />
+      <Edge From="47" To="84" Label="Source3" />
       <Edge From="48" To="49" Label="Source1" />
-      <Edge From="49" To="54" Label="Source2" />
-      <Edge From="50" To="54" Label="Source3" />
-      <Edge From="51" To="54" Label="Source4" />
-      <Edge From="52" To="54" Label="Source5" />
-      <Edge From="53" To="54" Label="Source6" />
-      <Edge From="54" To="57" Label="Source1" />
+      <Edge From="49" To="69" Label="Source2" />
+      <Edge From="50" To="69" Label="Source3" />
+      <Edge From="51" To="69" Label="Source4" />
+      <Edge From="52" To="69" Label="Source5" />
+      <Edge From="53" To="54" Label="Source1" />
+      <Edge From="54" To="55" Label="Source1" />
       <Edge From="55" To="56" Label="Source1" />
-      <Edge From="56" To="57" Label="Source2" />
+      <Edge From="56" To="57" Label="Source1" />
+      <Edge From="57" To="66" Label="Source1" />
       <Edge From="58" To="59" Label="Source1" />
-      <Edge From="58" To="75" Label="Source1" />
+      <Edge From="59" To="60" Label="Source1" />
       <Edge From="60" To="61" Label="Source1" />
-      <Edge From="60" To="62" Label="Source1" />
-      <Edge From="60" To="75" Label="Source2" />
+      <Edge From="61" To="66" Label="Source2" />
+      <Edge From="62" To="63" Label="Source1" />
       <Edge From="63" To="64" Label="Source1" />
-      <Edge From="63" To="75" Label="Source3" />
-      <Edge From="65" To="66" Label="Source1" />
-      <Edge From="65" To="75" Label="Source4" />
-      <Edge From="67" To="69" Label="Source1" />
-      <Edge From="68" To="69" Label="Source2" />
-      <Edge From="69" To="70" Label="Source1" />
-      <Edge From="70" To="73" Label="Source1" />
-      <Edge From="71" To="72" Label="Source1" />
-      <Edge From="72" To="73" Label="Source2" />
-      <Edge From="74" To="75" Label="Source5" />
-      <Edge From="74" To="82" Label="Source1" />
-      <Edge From="75" To="78" Label="Source1" />
-      <Edge From="76" To="77" Label="Source1" />
-      <Edge From="77" To="78" Label="Source2" />
-      <Edge From="79" To="80" Label="Source1" />
-      <Edge From="80" To="81" Label="Source2" />
-      <Edge From="82" To="83" Label="Source1" />
-      <Edge From="83" To="84" Label="Source1" />
+      <Edge From="64" To="65" Label="Source1" />
+      <Edge From="65" To="66" Label="Source3" />
+      <Edge From="66" To="67" Label="Source1" />
+      <Edge From="67" To="68" Label="Source1" />
+      <Edge From="67" To="110" Label="Source1" />
+      <Edge From="67" To="111" Label="Source1" />
+      <Edge From="68" To="69" Label="Source6" />
+      <Edge From="68" To="109" Label="Source1" />
+      <Edge From="69" To="72" Label="Source1" />
+      <Edge From="70" To="71" Label="Source1" />
+      <Edge From="71" To="72" Label="Source2" />
+      <Edge From="73" To="74" Label="Source1" />
+      <Edge From="73" To="90" Label="Source1" />
+      <Edge From="75" To="76" Label="Source1" />
+      <Edge From="75" To="77" Label="Source1" />
+      <Edge From="75" To="90" Label="Source2" />
+      <Edge From="78" To="79" Label="Source1" />
+      <Edge From="78" To="90" Label="Source3" />
+      <Edge From="80" To="81" Label="Source1" />
+      <Edge From="80" To="90" Label="Source4" />
+      <Edge From="82" To="84" Label="Source1" />
+      <Edge From="83" To="84" Label="Source2" />
       <Edge From="84" To="85" Label="Source1" />
+      <Edge From="85" To="88" Label="Source1" />
       <Edge From="86" To="87" Label="Source1" />
-      <Edge From="88" To="89" Label="Source1" />
-      <Edge From="92" To="93" Label="Source1" />
-      <Edge From="93" To="94" Label="Source1" />
+      <Edge From="87" To="88" Label="Source2" />
+      <Edge From="89" To="90" Label="Source5" />
+      <Edge From="89" To="105" Label="Source1" />
+      <Edge From="90" To="93" Label="Source1" />
+      <Edge From="91" To="92" Label="Source1" />
+      <Edge From="92" To="93" Label="Source2" />
+      <Edge From="94" To="95" Label="Source2" />
       <Edge From="95" To="96" Label="Source1" />
       <Edge From="96" To="97" Label="Source1" />
+      <Edge From="97" To="98" Label="Source1" />
       <Edge From="98" To="99" Label="Source1" />
-      <Edge From="99" To="100" Label="Source1" />
-      <Edge From="101" To="102" Label="Source1" />
+      <Edge From="99" To="100" Label="Source2" />
+      <Edge From="100" To="101" Label="Source1" />
+      <Edge From="101" To="104" Label="Source1" />
       <Edge From="102" To="103" Label="Source1" />
-      <Edge From="104" To="105" Label="Source1" />
+      <Edge From="103" To="104" Label="Source2" />
       <Edge From="105" To="106" Label="Source1" />
+      <Edge From="106" To="107" Label="Source1" />
       <Edge From="107" To="108" Label="Source1" />
-      <Edge From="108" To="116" Label="Source1" />
-      <Edge From="109" To="116" Label="Source2" />
-      <Edge From="110" To="116" Label="Source3" />
-      <Edge From="111" To="116" Label="Source4" />
-      <Edge From="112" To="116" Label="Source5" />
-      <Edge From="113" To="116" Label="Source6" />
-      <Edge From="114" To="116" Label="Source7" />
-      <Edge From="115" To="116" Label="Source8" />
-      <Edge From="116" To="117" Label="Source1" />
+      <Edge From="110" To="113" Label="Source1" />
+      <Edge From="111" To="113" Label="Source2" />
+      <Edge From="112" To="113" Label="Source3" />
+      <Edge From="113" To="116" Label="Source1" />
+      <Edge From="114" To="115" Label="Source1" />
+      <Edge From="115" To="116" Label="Source2" />
       <Edge From="117" To="118" Label="Source1" />
+      <Edge From="121" To="122" Label="Source1" />
+      <Edge From="122" To="123" Label="Source1" />
+      <Edge From="124" To="125" Label="Source1" />
+      <Edge From="125" To="126" Label="Source1" />
+      <Edge From="127" To="128" Label="Source1" />
+      <Edge From="128" To="129" Label="Source1" />
+      <Edge From="130" To="131" Label="Source1" />
+      <Edge From="131" To="132" Label="Source1" />
+      <Edge From="133" To="134" Label="Source1" />
+      <Edge From="134" To="135" Label="Source1" />
+      <Edge From="136" To="137" Label="Source1" />
+      <Edge From="137" To="145" Label="Source1" />
+      <Edge From="138" To="145" Label="Source2" />
+      <Edge From="139" To="145" Label="Source3" />
+      <Edge From="140" To="145" Label="Source4" />
+      <Edge From="141" To="145" Label="Source5" />
+      <Edge From="142" To="145" Label="Source6" />
+      <Edge From="143" To="145" Label="Source7" />
+      <Edge From="144" To="145" Label="Source8" />
+      <Edge From="145" To="146" Label="Source1" />
+      <Edge From="146" To="147" Label="Source1" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>
