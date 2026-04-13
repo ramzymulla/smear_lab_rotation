@@ -270,8 +270,8 @@ def process(value):
     global cached_grid, cached_img_dims, cached_canvas
 
     current_time = time.time()
-    reward_duration_left  = 0.032
-    reward_duration_right = 0.032
+    reward_duration_left  = 0.05
+    reward_duration_right = 0.056
     click_duration        = 0.1
     iti_duration_min      = 1.0
     iti_duration_max      = 5.0
