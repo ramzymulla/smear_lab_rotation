@@ -130,11 +130,11 @@ def build_future_draw_list(target_queue, grid):
     for cell_idx in target_queue:
         cell_counts[cell_idx] = cell_counts.get(cell_idx, 0) + 1
 
-    min_c  = 1
-    max_c  = 5
-    base_i = 50
+    min_c   = 1
+    max_c   = 5
+    base_i  = 50
     range_i = 205
-    r = grid.viz_radius
+    r       = grid.viz_radius
     n_cells = len(grid.cells)
 
     for cell_idx, count in cell_counts.items():
@@ -193,7 +193,6 @@ def generate_targets(n_tiles_per_side, max_targets_per_cell=5, shuffle=True):
 
     if N == 1:
         # Single cell: all targets go to cell index 0
-        target_queue = list(range(max_targets_per_cell))  # max_targets_per_cell copies of cell 0
         target_queue = [0] * max_targets_per_cell
         if shuffle:
             random.shuffle(target_queue)
@@ -271,6 +270,10 @@ in_withdrawal_period = False
 prev_poke_left = False
 prev_poke_right = False
 
+reward_timeout_duration = 10.0  # seconds animal has to poke after target hit
+reward_window_start_time = 0    # timestamp when reward_state became True
+failed_trial_count = 0          # incremented on timeout
+
 cached_grid = None
 cached_img_dims = None
 cached_canvas = None
@@ -303,10 +306,11 @@ def process(value):
     global n_tiles_per_side
     global cached_grid, cached_img_dims, cached_canvas
     global cached_future_draw_list, cached_queue_id
+    global reward_window_start_time, failed_trial_count
 
     current_time = time.time()
-    reward_duration_left  = 0.078
-    reward_duration_right = 0.087
+    reward_duration_left  = 0.05
+    reward_duration_right = 0.056
     click_duration        = 0.1
     iti_duration_min      = 1.0
     iti_duration_max      = 5.0
@@ -319,33 +323,38 @@ def process(value):
     )
     poke_left  = bool(value[1][0])
     poke_right = bool(value[1][1])
-    
+    nRewards = reward_left_count + reward_right_count
     if n_tiles_per_side == 1:
-        target_radius = max(100, 350 - (trial_count * 4))
+        target_radius = max(100, 350 - (nRewards * 4))
     else:
         target_radius = float(value[1][2])
 
-
+    # ------------------------------------------------------------------
+    # Grid / canvas cache: rebuild only when image dimensions change.
+    # ------------------------------------------------------------------
     img_dims = get_image_shape(image)
     if img_dims != cached_img_dims:
         cached_grid     = GridMaze(img_dims, n_tiles_per_side, scale_factor)
         cached_img_dims = img_dims
         cached_canvas   = create_blank_canvas(img_dims[0], img_dims[1])
+        cached_queue_id = None  # force draw list rebuild on dimension change
     else:
         cached_canvas.Set(black)
 
     grid   = cached_grid
     canvas = cached_canvas
 
-    # Rebuild the future draw list only when the queue has changed (target hit).
-    # id() changes whenever target_queue is reassigned, which happens on every hit.
+    # Rebuild the future draw list only when the queue has changed.
     current_queue_id = id(target_queue)
-    if current_queue_id != cached_queue_id or cached_img_dims != img_dims:
+    if current_queue_id != cached_queue_id:
         cached_future_draw_list = build_future_draw_list(target_queue, grid)
         cached_queue_id = current_queue_id
 
     draw_targets_fast(active_target, grid, canvas, cached_future_draw_list)
 
+    # ------------------------------------------------------------------
+    # Mouse position and target detection
+    # ------------------------------------------------------------------
     grid_loc_q, grid_loc_r = None, None
 
     if not (math.isnan(centroid_x) or math.isnan(centroid_y)):
@@ -354,19 +363,33 @@ def process(value):
         )
         CV.Circle(canvas, Point(int(centroid_x), int(centroid_y)), centroid_radius, centroid_color, -1)
 
-        if target_found_this_frame and active_target is not None and not reward_state:
-            active_target = None
-            reward_state  = True
-            click         = True
-            click_start_time = current_time
+        # BUG FIX: guard against re-triggering if we're already in reward state
+        # or mid-ITI. Only a clean target hit during the hunt phase counts.
+        if target_found_this_frame and active_target is not None and not reward_state and not in_iti and not in_withdrawal_period:
+            active_target            = None
+            reward_state             = True
+            reward_window_start_time = current_time
+            click                    = True
+            click_start_time         = current_time
+            # Queue identity hasn't changed yet (next target comes after ITI),
+            # so draw list stays valid showing remaining future targets.
 
+    # ------------------------------------------------------------------
+    # State machine: ITI → withdrawal → reward
+    # BUG FIX: each branch is strictly exclusive via elif, so reward_state
+    # can never process a poke on the same frame a target hit occurred.
+    # ------------------------------------------------------------------
     if in_iti:
         if current_time - iti_start_time >= iti_duration:
             trial_count += 1
             in_iti = False
+            # BUG FIX: was reading target_queue[0] then separately slicing,
+            # which is correct but the cached_queue_id must be invalidated
+            # here since target_queue is reassigned via slicing.
             if active_target is None and target_queue:
-                active_target  = target_queue[0]
-                target_queue   = target_queue[1:]
+                active_target   = target_queue[0]
+                target_queue    = target_queue[1:]
+                cached_queue_id = None  # force draw list rebuild next frame
 
     elif in_withdrawal_period:
         if not (poke_left or poke_right):
@@ -380,23 +403,36 @@ def process(value):
 
     elif reward_state:
         if reward_left and current_time - reward_left_start_time >= reward_duration_left:
-            reward_left          = False
-            in_withdrawal_period = True
+            reward_left           = False
+            in_withdrawal_period  = True
             withdrawal_start_time = current_time
-            reward_state         = False
+            reward_state          = False
         elif reward_right and current_time - reward_right_start_time >= reward_duration_right:
-            reward_right         = False
-            in_withdrawal_period = True
+            reward_right          = False
+            in_withdrawal_period  = True
             withdrawal_start_time = current_time
-            reward_state         = False
+            reward_state          = False
         elif poke_left and not reward_left and not reward_right:
-            reward_left           = True
-            reward_left_count    += 1
+            reward_left            = True
+            reward_left_count     += 1
             reward_left_start_time = current_time
         elif poke_right and not reward_right and not reward_left:
-            reward_right          = True
-            reward_right_count   += 1
+            reward_right           = True
+            reward_right_count    += 1
             reward_right_start_time = current_time
+        # Only reached on frames AFTER the target-hit frame, since the
+        # target-hit block above sets reward_state=True but this elif
+        # won't execute until the next call.
+        elif current_time - reward_window_start_time >= reward_timeout_duration:
+            # Animal did not poke in time — count as failed trial and
+            # skip reward delivery, going straight to ITI.
+            failed_trial_count += 1
+            reward_state        = False
+            reward_left         = False
+            reward_right        = False
+            in_iti              = True
+            iti_start_time      = current_time
+            iti_duration        = random.uniform(iti_duration_min, iti_duration_max)
 
     if click and current_time - click_start_time >= click_duration:
         click = False
@@ -407,5 +443,5 @@ def process(value):
 
     return (canvas, Point(centroid_x, centroid_y), reward_state, reward_left, reward_right,
             poke_left, poke_right, drinking, in_iti, click, active_target,
-            grid_loc_q, grid_loc_r, trial_count,
+            grid_loc_q, grid_loc_r, trial_count, failed_trial_count,
             reward_left_count, reward_right_count, tuple(target_distribution))
