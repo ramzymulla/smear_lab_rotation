@@ -193,7 +193,7 @@ def generate_targets(n_tiles_per_side, max_targets_per_cell=5, shuffle=True):
 
     if N == 1:
         # Single cell: all targets go to cell index 0
-        target_queue = [0] * max_targets_per_cell
+        target_queue = [0] * max_targets_per_cell*10  # Arbitrary large number of targets for the single cell
         if shuffle:
             random.shuffle(target_queue)
         base_distribution = [1.0]
@@ -309,8 +309,8 @@ def process(value):
     global reward_window_start_time, failed_trial_count
 
     current_time = time.time()
-    reward_duration_left  = 0.05
-    reward_duration_right = 0.056
+    reward_duration_left  = 0.076
+    reward_duration_right = 0.089
     click_duration        = 0.1
     iti_duration_min      = 1.0
     iti_duration_max      = 5.0
@@ -440,8 +440,25 @@ def process(value):
     prev_poke_left  = poke_left
     prev_poke_right = poke_right
     drinking = reward_state and (poke_left or poke_right)
+    total_trials = trial_count + failed_trial_count
 
-    return (canvas, Point(centroid_x, centroid_y), reward_state, reward_left, reward_right,
-            poke_left, poke_right, drinking, in_iti, click, active_target,
-            grid_loc_q, grid_loc_r, trial_count, failed_trial_count,
-            reward_left_count, reward_right_count, tuple(target_distribution))
+    return (canvas, 
+            Point(centroid_x, centroid_y), 
+            reward_state, 
+            reward_left,
+            reward_right,
+            poke_left, 
+            poke_right, 
+            drinking, 
+            in_iti, 
+            click, 
+            active_target,
+            grid_loc_q, 
+            grid_loc_r,
+            target_radius, 
+            
+            failed_trial_count, 
+            trial_count, 
+            reward_left_count, 
+            reward_right_count, 
+            tuple(target_distribution))
