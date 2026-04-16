@@ -437,6 +437,8 @@ def process(value):
     if click and current_time - click_start_time >= click_duration:
         click = False
 
+
+
     prev_poke_left  = poke_left
     prev_poke_right = poke_right
     drinking = reward_state and (poke_left or poke_right)

@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkflowBuilder Version="2.9.0"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:cv="clr-namespace:Bonsai.Vision;assembly=Bonsai.Vision"
+                 xmlns:ffmpeg="clr-namespace:Bonsai.FFmpeg;assembly=Bonsai.FFmpeg"
+                 xmlns="https://bonsai-rx.org/2018/workflow">
+  <Workflow>
+    <Nodes>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="cv:CameraCapture">
+          <cv:Index>0</cv:Index>
+          <cv:CaptureProperties />
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="ffmpeg:VideoWriter">
+          <ffmpeg:FileName>test.mp4</ffmpeg:FileName>
+          <ffmpeg:Suffix>None</ffmpeg:Suffix>
+          <ffmpeg:Overwrite>true</ffmpeg:Overwrite>
+          <ffmpeg:FrameRate>30</ffmpeg:FrameRate>
+          <ffmpeg:OutputArguments>-c:v libx264 -pix_fmt yuv420p -crf 23</ffmpeg:OutputArguments>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="cv:CameraCapture">
+          <cv:Index>0</cv:Index>
+          <cv:CaptureProperties />
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="ffmpeg:VideoWriter">
+          <ffmpeg:FileName>test2.mp4</ffmpeg:FileName>
+          <ffmpeg:Suffix>None</ffmpeg:Suffix>
+          <ffmpeg:Overwrite>true</ffmpeg:Overwrite>
+          <ffmpeg:FrameRate>30</ffmpeg:FrameRate>
+          <ffmpeg:OutputArguments>-c:v h264_nvenc -rc vbr -cq 23 -pix_fmt yuv420p</ffmpeg:OutputArguments>
+        </Combinator>
+      </Expression>
+    </Nodes>
+    <Edges>
+      <Edge From="0" To="1" Label="Source1" />
+      <Edge From="2" To="3" Label="Source1" />
+    </Edges>
+  </Workflow>
+</WorkflowBuilder>

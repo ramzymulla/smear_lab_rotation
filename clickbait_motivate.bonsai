@@ -1,0 +1,2160 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkflowBuilder Version="2.9.0"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:ard="clr-namespace:Bonsai.Arduino;assembly=Bonsai.Arduino"
+                 xmlns:spk="clr-namespace:Bonsai.Spinnaker;assembly=Bonsai.Spinnaker"
+                 xmlns:rx="clr-namespace:Bonsai.Reactive;assembly=Bonsai.Core"
+                 xmlns:cv="clr-namespace:Bonsai.Vision;assembly=Bonsai.Vision"
+                 xmlns:ipy="clr-namespace:Bonsai.Scripting.IronPython;assembly=Bonsai.Scripting.IronPython"
+                 xmlns:io="clr-namespace:Bonsai.IO;assembly=Bonsai.System"
+                 xmlns:al="clr-namespace:Bonsai.Audio;assembly=Bonsai.Audio"
+                 xmlns:gl="clr-namespace:Bonsai.Shaders;assembly=Bonsai.Shaders"
+                 xmlns:sys="clr-namespace:System;assembly=mscorlib"
+                 xmlns:res="clr-namespace:Bonsai.Resources;assembly=Bonsai.System"
+                 xmlns="https://bonsai-rx.org/2018/workflow">
+  <Workflow>
+    <Nodes>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="ard:CreateArduino">
+          <ard:Name>Arduino Mega 2560</ard:Name>
+          <ard:PortName>COM3</ard:PortName>
+          <ard:BaudRate>57600</ard:BaudRate>
+          <ard:SamplingInterval>19</ard:SamplingInterval>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="spk:SpinnakerCapture">
+          <spk:Index xsi:nil="true" />
+          <spk:ColorProcessing>Default</spk:ColorProcessing>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Image</Selector>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Slice">
+          <rx:Start>0</rx:Start>
+          <rx:Step>7</rx:Step>
+          <rx:Stop xsi:nil="true" />
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="cv:Flip">
+          <cv:Mode>Vertical</cv:Mode>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="cv:Grayscale" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="cv:CropPolygon">
+          <cv:Regions>
+            <cv:ArrayOfPoint>
+              <cv:Point>
+                <cv:X>1295</cv:X>
+                <cv:Y>522</cv:Y>
+              </cv:Point>
+              <cv:Point>
+                <cv:X>1019</cv:X>
+                <cv:Y>1019</cv:Y>
+              </cv:Point>
+              <cv:Point>
+                <cv:X>438</cv:X>
+                <cv:Y>1032</cv:Y>
+              </cv:Point>
+              <cv:Point>
+                <cv:X>138</cv:X>
+                <cv:Y>543</cv:Y>
+              </cv:Point>
+              <cv:Point>
+                <cv:X>429</cv:X>
+                <cv:Y>27</cv:Y>
+              </cv:Point>
+              <cv:Point>
+                <cv:X>1011</cv:X>
+                <cv:Y>27</cv:Y>
+              </cv:Point>
+            </cv:ArrayOfPoint>
+            <cv:ArrayOfPoint>
+              <cv:Point>
+                <cv:X>170</cv:X>
+                <cv:Y>493</cv:Y>
+              </cv:Point>
+              <cv:Point>
+                <cv:X>173</cv:X>
+                <cv:Y>516</cv:Y>
+              </cv:Point>
+              <cv:Point>
+                <cv:X>167</cv:X>
+                <cv:Y>589</cv:Y>
+              </cv:Point>
+              <cv:Point>
+                <cv:X>141</cv:X>
+                <cv:Y>546</cv:Y>
+              </cv:Point>
+            </cv:ArrayOfPoint>
+            <cv:ArrayOfPoint>
+              <cv:Point>
+                <cv:X>470</cv:X>
+                <cv:Y>1028</cv:Y>
+              </cv:Point>
+              <cv:Point>
+                <cv:X>441</cv:X>
+                <cv:Y>1032</cv:Y>
+              </cv:Point>
+              <cv:Point>
+                <cv:X>420</cv:X>
+                <cv:Y>1009</cv:Y>
+              </cv:Point>
+              <cv:Point>
+                <cv:X>450</cv:X>
+                <cv:Y>1012</cv:Y>
+              </cv:Point>
+            </cv:ArrayOfPoint>
+            <cv:ArrayOfPoint>
+              <cv:Point>
+                <cv:X>1019</cv:X>
+                <cv:Y>1016</cv:Y>
+              </cv:Point>
+              <cv:Point>
+                <cv:X>990</cv:X>
+                <cv:Y>1022</cv:Y>
+              </cv:Point>
+              <cv:Point>
+                <cv:X>997</cv:X>
+                <cv:Y>996</cv:Y>
+              </cv:Point>
+              <cv:Point>
+                <cv:X>1036</cv:X>
+                <cv:Y>986</cv:Y>
+              </cv:Point>
+            </cv:ArrayOfPoint>
+            <cv:ArrayOfPoint>
+              <cv:Point>
+                <cv:X>1279</cv:X>
+                <cv:Y>495</cv:Y>
+              </cv:Point>
+              <cv:Point>
+                <cv:X>1293</cv:X>
+                <cv:Y>522</cv:Y>
+              </cv:Point>
+              <cv:Point>
+                <cv:X>1277</cv:X>
+                <cv:Y>538</cv:Y>
+              </cv:Point>
+              <cv:Point>
+                <cv:X>1270</cv:X>
+                <cv:Y>501</cv:Y>
+              </cv:Point>
+            </cv:ArrayOfPoint>
+            <cv:ArrayOfPoint>
+              <cv:Point>
+                <cv:X>984</cv:X>
+                <cv:Y>29</cv:Y>
+              </cv:Point>
+              <cv:Point>
+                <cv:X>1009</cv:X>
+                <cv:Y>31</cv:Y>
+              </cv:Point>
+              <cv:Point>
+                <cv:X>1024</cv:X>
+                <cv:Y>56</cv:Y>
+              </cv:Point>
+              <cv:Point>
+                <cv:X>995</cv:X>
+                <cv:Y>44</cv:Y>
+              </cv:Point>
+            </cv:ArrayOfPoint>
+            <cv:ArrayOfPoint>
+              <cv:Point>
+                <cv:X>427</cv:X>
+                <cv:Y>28</cv:Y>
+              </cv:Point>
+              <cv:Point>
+                <cv:X>470</cv:X>
+                <cv:Y>26</cv:Y>
+              </cv:Point>
+              <cv:Point>
+                <cv:X>445</cv:X>
+                <cv:Y>56</cv:Y>
+              </cv:Point>
+              <cv:Point>
+                <cv:X>412</cv:X>
+                <cv:Y>53</cv:Y>
+              </cv:Point>
+            </cv:ArrayOfPoint>
+          </cv:Regions>
+          <cv:MaskType>ToZero</cv:MaskType>
+          <cv:FillValue>
+            <cv:Val0>255</cv:Val0>
+            <cv:Val1>255</cv:Val1>
+            <cv:Val2>255</cv:Val2>
+            <cv:Val3>255</cv:Val3>
+          </cv:FillValue>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="cv:Smooth">
+          <cv:SmoothType>Gaussian</cv:SmoothType>
+          <cv:Size1>27</cv:Size1>
+          <cv:Size2>27</cv:Size2>
+          <cv:Sigma1>20</cv:Sigma1>
+          <cv:Sigma2>20</cv:Sigma2>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="cv:Threshold">
+          <cv:ThresholdValue>77</cv:ThresholdValue>
+          <cv:MaxValue>255</cv:MaxValue>
+          <cv:ThresholdType>Binary</cv:ThresholdType>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="ipy:PythonTransform">
+        <ipy:Name>Invert Image</ipy:Name>
+        <ipy:Script>import clr
+clr.AddReference("OpenCV.Net")
+from OpenCV.Net import *
+
+@returns(IplImage)
+def process(value):
+
+  image = 255-value
+  return image</ipy:Script>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="cv:FindContours">
+          <cv:Mode>External</cv:Mode>
+          <cv:Method>ChainApproxSimple</cv:Method>
+          <cv:Offset>
+            <cv:X>0</cv:X>
+            <cv:Y>0</cv:Y>
+          </cv:Offset>
+          <cv:MinArea>12</cv:MinArea>
+          <cv:MaxArea xsi:nil="true" />
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="cv:BinaryRegionAnalysis" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="cv:LargestBinaryRegion" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="cv:Centroid" />
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>X</Selector>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Y</Selector>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="cv:ConvertColor">
+          <cv:Conversion>Gray2Bgr</cv:Conversion>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Zip" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="ard:AnalogInput">
+          <ard:PortName>Arduino Mega 2560</ard:PortName>
+          <ard:Pin>0</ard:Pin>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="LessThan">
+        <Operand xsi:type="IntProperty">
+          <Value>40</Value>
+        </Operand>
+      </Expression>
+      <Expression xsi:type="rx:AsyncSubject">
+        <Name>Poke Left</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="ard:AnalogInput">
+          <ard:PortName>Arduino Mega 2560</ard:PortName>
+          <ard:Pin>8</ard:Pin>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="LessThan">
+        <Operand xsi:type="IntProperty">
+          <Value>30</Value>
+        </Operand>
+      </Expression>
+      <Expression xsi:type="rx:AsyncSubject">
+        <Name>Poke Right</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:CombineLatest" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:WithLatestFrom" />
+      </Expression>
+      <Expression xsi:type="ipy:PythonTransform">
+        <ipy:Name>Clickbait Task</ipy:Name>
+        <ipy:Script>import clr
+clr.AddReference("OpenCV.Net")
+clr.AddReference("System")
+from OpenCV.Net import *
+import math
+import time
+import random
+import System
+from System import Array
+
+# Enhanced 2D distribution generator for IronPython
+def generate_2d_distribution(x_size, y_size, mean_x=None, mean_y=None, 
+                           sigma_x=None, sigma_y=None, log_normal=False,
+                           log_sigma_x=0.5, log_sigma_y=0.5, flip_log_y=False):
+    """
+    Generate a 2D normal or log-normal distribution for IronPython.
+    
+    Parameters:
+    -----------
+    x_size : int
+        Width of the grid (number of cells in x direction)
+    y_size : int
+        Height of the grid (number of cells in y direction)
+    mean_x : float, optional
+        X-coordinate of the mean (default: center of x-axis)
+    mean_y : float, optional
+        Y-coordinate of the mean (default: center of y-axis)
+    sigma_x : float, optional
+        Standard deviation in x direction (default: x_size/6)
+    sigma_y : float, optional
+        Standard deviation in y direction (default: y_size/6)
+    log_normal : bool, str, or list
+        Control log-normal distribution:
+        - False: normal distribution for both axes
+        - True: log-normal for both axes  
+        - 'x': log-normal for x-axis only
+        - 'y': log-normal for y-axis only
+    log_sigma_x : float
+        Standard deviation in log-space for x-axis log-normal (default: 0.5)
+    log_sigma_y : float
+        Standard deviation in log-space for y-axis log-normal (default: 0.5)
+    flip_log_y : bool
+        If True and log_normal includes 'y', flips the y-axis log-normal distribution
+        
+    Returns:
+    --------
+    distribution : list
+        1D list containing the flattened distribution values
+    """
+    # Set default parameters
+    if mean_x is None:
+        mean_x = x_size / 2.0
+    if mean_y is None:
+        mean_y = y_size / 2.0
+        
+    if sigma_x is None:
+        sigma_x = x_size / 6.0
+    if sigma_y is None:
+        sigma_y = y_size / 6.0
+    
+    # Parse log_normal parameter
+    if log_normal is True:
+        log_x, log_y = True, True
+    elif log_normal is False:
+        log_x, log_y = False, False
+    elif log_normal == 'x':
+        log_x, log_y = True, False
+    elif log_normal == 'y':
+        log_x, log_y = False, True
+    elif hasattr(log_normal, '__iter__'):  # Handle list/tuple in IronPython
+        log_x = 'x' in log_normal
+        log_y = 'y' in log_normal
+    else:
+        raise ValueError("log_normal must be True, False, 'x', 'y', or a list containing 'x' and/or 'y'")
+    
+    # Generate distribution
+    distribution = []
+    
+    for y in range(y_size):
+        for x in range(x_size):
+            # Calculate distributions for each axis separately
+            if log_x:
+                # Log-normal for X axis
+                log_mean_x = math.log(max(mean_x, 1e-10))
+                x_pos = max(x + 1, 1e-10)  # Add 1 to avoid log(0), ensure positive
+                z_x = math.exp(-((math.log(x_pos) - log_mean_x)**2 / (2 * log_sigma_x**2)))
+            else:
+                # Normal for X axis
+                z_x = math.exp(-((x - mean_x)**2 / (2 * sigma_x**2)))
+            
+            if log_y:
+                # Log-normal for Y axis
+                log_mean_y = math.log(max(mean_y, 1e-10))
+                if flip_log_y:
+                    # Flip the log-normal by using (y_size - y - 1) instead of y
+                    y_flipped = y_size - y - 1
+                    y_pos = max(y_flipped + 1, 1e-10)
+                else:
+                    y_pos = max(y + 1, 1e-10)  # Add 1 to avoid log(0), ensure positive
+                z_y = math.exp(-((math.log(y_pos) - log_mean_y)**2 / (2 * log_sigma_y**2)))
+            else:
+                # Normal for Y axis
+                z_y = math.exp(-((y - mean_y)**2 / (2 * sigma_y**2)))
+            
+            # Combine the distributions (multiply since they're independent)
+            z = z_x * z_y
+            distribution.append(z)
+    
+    # Normalize distribution so it sums to 1
+    total_prob = sum(distribution)
+    if total_prob &gt; 0:
+        distribution = [p / total_prob for p in distribution]
+    
+    return distribution
+
+# Class to generate maze coordinates (unchanged)
+class GridMaze:
+    def __init__(self, maze_bounds, maze_dims):
+        self.bounds = maze_bounds
+        self.shape = maze_dims
+        
+        cellsize_x = maze_bounds[0] // maze_dims[0]
+        cellsize_y = maze_bounds[1] // maze_dims[1]
+        
+        # Generate Grid
+        self.cells = [
+            (Point(x * cellsize_x, y * cellsize_y), 
+             Point((x + 1) * cellsize_x, (y + 1) * cellsize_y))
+            for y in range(1,self.shape[1]-1)
+            for x in range(1,self.shape[0]-1)
+        ]
+
+def draw_grid(grid, img):
+    for cell in grid.cells:
+        CV.Rectangle(img, cell[0], cell[1], grid_color, thickness=2)
+
+# Function to extract dims from image (unchanged)
+def get_image_shape(img):
+    size = img.Size
+    return [size.Width, size.Height]
+
+# Enhanced target generation function
+def generate_targets(grid_cells_x, grid_cells_y, max_targets_per_cell=5, shuffle=True,
+                    mean_x=None, mean_y=None, sigma_x=None, sigma_y=None, 
+                    log_normal=False, log_sigma_x=0.5, log_sigma_y=0.5, flip_log_y=False):
+    """
+    Generate targets with enhanced distribution control.
+    
+    Parameters:
+    -----------
+    grid_cells_x, grid_cells_y : int
+        Grid dimensions
+    max_targets_per_cell : int
+        Maximum number of targets per cell
+    shuffle : bool
+        Whether to shuffle the target queue
+    mean_x, mean_y : float, optional
+        Mean position of the distribution
+    sigma_x, sigma_y : float, optional
+        Standard deviation for normal distribution
+    log_normal : bool, str, or list
+        Log-normal distribution control
+    log_sigma_x, log_sigma_y : float
+        Log-space standard deviations
+        
+    Returns:
+    --------
+    tuple : (grid_cells_x, grid_cells_y, target_queue, distribution, active_target)
+    """
+    # Calculate the actual grid size (excluding border cells)
+    inner_x = grid_cells_x - 2
+    inner_y = grid_cells_y - 2
+    
+    # Set default parameters if not provided
+    if mean_x is None:
+        mean_x = (inner_x - 1) / 2.0  # Center of 0-indexed grid
+    if mean_y is None:
+        mean_y = (inner_y - 1) / 2.0  # Center of 0-indexed grid
+    if sigma_x is None:
+        sigma_x = inner_x / 3.0
+    if sigma_y is None:
+        sigma_y = inner_y / 3.0
+    
+    # Generate the 2D distribution
+    base_distribution = generate_2d_distribution(
+        inner_x, inner_y, mean_x, mean_y, sigma_x, sigma_y,
+        log_normal, log_sigma_x, log_sigma_y, flip_log_y
+    )
+    
+    # Find max probability for scaling
+    max_prob = max(base_distribution) if base_distribution else 1.0
+    
+    # Quantize probabilities into discrete target counts
+    target_counts = {}
+    total_targets = 0
+    
+    for i, prob in enumerate(base_distribution):
+        # Scale to [1, max_targets_per_cell] range
+        scaled_targets = 0 + int((prob / max_prob) * (max_targets_per_cell - 1))
+        target_counts[i] = scaled_targets
+        total_targets += scaled_targets
+    
+    # Create target queue
+    target_queue = []
+    for cell_idx, count in target_counts.items():
+        for _ in range(count):
+            target_queue.append(cell_idx)
+    
+    if shuffle:
+        random.shuffle(target_queue)
+
+    # Set the first active target
+    active_target = None
+    if target_queue:
+        active_target = target_queue[0]
+        target_queue = target_queue[1:]
+    
+    # Store initial cell counts for visualization
+    global initial_cell_counts
+    global max_initial_count
+    initial_cell_counts = target_counts.copy()
+    max_initial_count = max_targets_per_cell
+    
+    return grid_cells_x, grid_cells_y, target_queue, base_distribution, active_target
+
+# Function to get current distribution config based on flip state
+def get_current_distribution_config():
+    """Return the appropriate distribution config based on current flip_state."""
+    if flip_state == 0:
+        return DISTRIBUTION_CONFIG_STATE_0
+    else:
+        return DISTRIBUTION_CONFIG_STATE_1
+
+# Visualization functions (unchanged from your original)
+def draw_target_distribution(target_distribution, grid, img, max_intensity=255):
+    if sum(target_distribution) &gt; 0:
+        max_prob = max(target_distribution)
+    else:
+        max_prob = 1.0
+    
+    overlay = create_blank_canvas(img.Size.Width, img.Size.Height)
+    
+    for i, prob in enumerate(target_distribution):
+        if prob &gt; 0 and i &lt; len(grid.cells):
+            norm_prob = prob / max_prob
+            intensity = int(norm_prob * max_intensity)
+            dist_color = Scalar.Rgb(intensity, 0, 0)
+            cell = grid.cells[i]
+            CV.Rectangle(overlay, cell[0], cell[1], dist_color, thickness=-1)
+    
+    alpha = 0.5
+    CV.AddWeighted(img, 1.0, overlay, alpha, 0.0, img)
+    return img
+
+def draw_future_targets(target_queue, grid, img):
+    all_targets = list(target_queue)
+    if not all_targets:
+        return img
+
+    overlay = create_blank_canvas(img.Size.Width, img.Size.Height)
+    cell_counts = {}
+    for cell_idx in all_targets:
+        if cell_idx in cell_counts:
+            cell_counts[cell_idx] += 1
+        else:
+            cell_counts[cell_idx] = 1
+
+    min_possible_count = 1
+    max_possible_count = 5
+    base_intensity = 50
+    intensity_range = 205
+    
+    for cell_idx, count in cell_counts.items():
+        if cell_idx &lt; len(grid.cells):
+            clamped_count = max(min_possible_count, min(count, max_possible_count))
+            normalized_position = (clamped_count - min_possible_count) / float(max_possible_count - min_possible_count)
+            intensity = base_intensity + int(normalized_position * intensity_range)
+            target_future_color = Scalar.Rgb(0, intensity, intensity)
+            cell = grid.cells[cell_idx]
+            CV.Rectangle(overlay, cell[0], cell[1], target_future_color, thickness=-1)
+
+    alpha = 0.5
+    CV.AddWeighted(img, 1.0, overlay, alpha, 0.0, img)
+    return img
+
+def get_grid_location(grid, centroid_x, centroid_y, active_target, img):
+    cell_width = grid.bounds[0] // grid.shape[0]
+    cell_height = grid.bounds[1] // grid.shape[1]
+    
+    grid_x = int(centroid_x // cell_width) - 1
+    grid_y = int(centroid_y // cell_height) - 1
+    
+    target_found = False
+    
+    if 0 &lt;= grid_x &lt; grid.shape[0]-2 and 0 &lt;= grid_y &lt; grid.shape[1]-2:
+        cell_index = grid_y * (grid.shape[0]-2) + grid_x
+        
+        if 0 &lt;= cell_index &lt; len(grid.cells):
+            cell = grid.cells[cell_index]
+            CV.Rectangle(img, cell[0], cell[1], mouse_loc_color, thickness=-1)
+            
+            if cell_index == active_target:
+                target_found = True
+    
+    return grid_x, grid_y, target_found
+
+def create_blank_canvas(width, height, channels=3, color=(0, 0, 0)):
+    depth = IplDepth.U8
+    img = IplImage(Size(width, height), depth, channels)
+    if channels == 1:
+        fill_color = Scalar.All(color[0])
+    else:
+        fill_color = Scalar.Rgb(color[0], color[1], color[2])
+    img.Set(fill_color)
+    return img
+
+def draw_targets(active_target, target_queue, grid, img, draw_distribution=False, draw_future=False):
+    if draw_distribution:
+        img = draw_target_distribution(target_distribution, grid, img)
+    
+    if draw_future:
+        img = draw_future_targets(target_queue, grid, img)
+    
+    if active_target is not None and active_target &lt; len(grid.cells):
+        cell = grid.cells[active_target]
+        CV.Rectangle(img, cell[0], cell[1], target_color, thickness=-1)
+    
+    return img
+
+# Configuration parameters - MODIFY THESE TO CONTROL YOUR DISTRIBUTION
+grid_x = 7
+grid_y = 15
+max_targets_per_cell = 5
+
+# Flip state parameters
+FLIP_STATE_CONFIG = {
+    'min_trials_before_flip': 4,    # Minimum trials before state flip
+    'max_trials_before_flip': 10,   # Maximum trials before state flip
+}
+
+# Distribution configurations for each flip state
+DISTRIBUTION_CONFIG_STATE_0 = {
+    # Mean position (None = center)
+    'mean_x': None,  # Try: 2.0 for left-shifted, 4.0 for right-shifted
+    'mean_y': 3,     # Top-focused
+    
+    # Standard deviations for normal distribution
+    'sigma_x': None,  # Try: 1.0 for narrow, 3.0 for wide
+    'sigma_y': None,  # Try: 2.0 for narrow, 5.0 for wide
+    
+    # Log-normal control
+    'log_normal': 'y',  # Options: False, True, 'x', 'y', ['x', 'y']
+    
+    # Log-space standard deviations (for log-normal axes)
+    'log_sigma_x': 0.5,  # 0.2-0.4: tight, 0.5: moderate, 0.8-1.2: fat tails
+    'log_sigma_y': 0.7,  # 0.2-0.4: tight, 0.5: moderate, 0.8-1.2: fat tails
+    'flip_log_y': False,  # Normal log-normal for state 0
+}
+
+DISTRIBUTION_CONFIG_STATE_1 = {
+    # Perfect mirror: bottom-focused distribution using flipped log-normal
+    'mean_x': None,  # Keep centered
+    'mean_y': 3,     # Same mean position as state 0
+    
+    'sigma_x': None,
+    'sigma_y': None,
+    
+    'log_normal': 'y',
+    'log_sigma_x': 0.5,
+    'log_sigma_y': 0.7,   # Same parameters as state 0
+    'flip_log_y': True,   # Flip the log-normal distribution
+}
+
+# Initialize global variables
+global target_queue
+global active_target
+global target_distribution
+global grid_cells_x
+global grid_cells_y
+global initial_cell_counts
+global max_initial_count
+global flip_state
+global trials_since_last_flip
+global trials_until_next_flip
+
+grid_cells_x = grid_x
+grid_cells_y = grid_y
+initial_cell_counts = {}
+max_initial_count = 1
+
+# Initialize flip state variables
+flip_state = 0
+trials_since_last_flip = 0
+trials_until_next_flip = random.randint(
+    FLIP_STATE_CONFIG['min_trials_before_flip'],
+    FLIP_STATE_CONFIG['max_trials_before_flip']
+)
+
+# Initialize target landscape with enhanced distribution (state 0)
+current_config = get_current_distribution_config()
+_, _, target_queue, target_distribution, active_target = generate_targets(
+    grid_cells_x, grid_cells_y, max_targets_per_cell, **current_config
+)
+
+# Initialize other global variables (unchanged from your original)
+trial_count = 0
+reward_left_count = 0
+reward_right_count = 0
+reward_state = True
+click = False
+click_start_time = 0
+drinking = False
+reward_left = False
+reward_right = False
+reward_left_start_time = 0
+reward_right_start_time = 0
+
+iti_start_time = 0
+iti_duration = 0
+in_iti = False
+withdrawal_start_time = 0
+in_withdrawal_period = False
+prev_poke_left = False
+prev_poke_right = False
+
+"""
+# Visualization parameters
+"""
+centroid_color = Scalar.Rgb(255, 255, 255)
+mouse_loc_color = Scalar.Rgb(255, 0, 0)
+target_color = Scalar.Rgb(255, 255, 255)
+grid_color = Scalar.Rgb(128, 128, 128)
+centroid_radius = 5
+
+"""
+Execute task
+"""
+
+@returns(tuple)
+def process(value):
+    # Declare global vars
+    global trial_count
+    global reward_left_count
+    global reward_right_count
+    global target_queue
+    global active_target
+    global target_distribution
+    global reward_state
+    global click
+    global click_start_time
+    global drinking
+    global reward_left
+    global reward_right
+    global reward_left_start_time
+    global reward_right_start_time
+    global iti_start_time
+    global iti_duration
+    global in_iti
+    global withdrawal_start_time
+    global in_withdrawal_period
+    global prev_poke_left
+    global prev_poke_right
+    global grid_cells_x
+    global grid_cells_y
+    global flip_state
+    global trials_since_last_flip
+    global trials_until_next_flip
+
+    # Timing-related vars
+    current_time = time.time()
+    reward_duration_left = 0.032
+    reward_duration_right = 0.032
+    click_duration = 0.1
+    iti_duration_min = 1.0
+    iti_duration_max = 3.0
+    withdrawal_duration = 0.5
+    
+    # Flag to track if target was found in this frame
+    target_found_this_frame = False
+    # Flag to track if we just completed a trial
+    trial_completed_this_frame = False
+
+    # Load realtime variables from Zip node
+    centroid_x, centroid_y, image = value[0].Item1, value[0].Item2, value[0].Item3
+    poke_left, poke_right = bool(value[1][0]), bool(value[1][1])
+
+    # Process grid and canvas
+    grid_loc_x, grid_loc_y = None, None
+    img_dims = get_image_shape(image)
+    grid = GridMaze(img_dims, [grid_cells_x, grid_cells_y])
+    canvas = create_blank_canvas(img_dims[0], img_dims[1])
+    
+    # Draw targets and distribution
+    draw_targets(active_target, target_queue, grid, canvas, draw_distribution=False, draw_future=True)
+
+    # Process mouse position and check for target
+    if not (math.isnan(centroid_x) or math.isnan(centroid_y)):
+        grid_loc_x, grid_loc_y, target_found_this_frame = get_grid_location(grid, centroid_x, centroid_y, active_target, canvas)
+        CV.Circle(canvas, Point(int(centroid_x), int(centroid_y)), centroid_radius, centroid_color, -1)
+        
+        # If target found and we're not in reward state yet
+        if target_found_this_frame and active_target is not None and not reward_state:
+            # Remove the found target
+            active_target = None
+            
+            # Trigger reward state
+            reward_state = True
+            click = True
+            click_start_time = current_time
+
+    # State machine logic
+    if in_iti:
+        if current_time - iti_start_time &gt;= iti_duration:
+            trial_count += 1
+            trials_since_last_flip += 1
+            trial_completed_this_frame = True
+            in_iti = False
+            
+            # Check if we need to flip state
+            if trials_since_last_flip &gt;= trials_until_next_flip:
+                # Flip the state
+                flip_state = 1 - flip_state  # Toggle between 0 and 1
+                trials_since_last_flip = 0
+                trials_until_next_flip = random.randint(
+                    FLIP_STATE_CONFIG['min_trials_before_flip'],
+                    FLIP_STATE_CONFIG['max_trials_before_flip']
+                )
+                
+                # Generate new targets with the new distribution
+                current_config = get_current_distribution_config()
+                _, _, target_queue, target_distribution, active_target = generate_targets(
+                    grid_cells_x, grid_cells_y, max_targets_per_cell, **current_config
+                )
+            else:
+                # Set next target if we need to (only if active target is None)
+                if active_target is None and target_queue:
+                    active_target = target_queue[0]
+                    target_queue = target_queue[1:]
+            
+    elif in_withdrawal_period:
+        if not (poke_left or poke_right):  # Mouse has withdrawn
+            if current_time - withdrawal_start_time &gt;= withdrawal_duration:
+                in_withdrawal_period = False
+                in_iti = True
+                iti_start_time = current_time
+                iti_duration = random.uniform(iti_duration_min, iti_duration_max)
+        else:  # Mouse is still poking, reset withdrawal timer
+            withdrawal_start_time = current_time
+            
+    elif reward_state:
+        if reward_left and current_time - reward_left_start_time &gt;= reward_duration_left:
+            reward_left = False
+            in_withdrawal_period = True
+            withdrawal_start_time = current_time
+            reward_state = False
+        elif reward_right and current_time - reward_right_start_time &gt;= reward_duration_right:
+            reward_right = False
+            in_withdrawal_period = True
+            withdrawal_start_time = current_time
+            reward_state = False
+        elif poke_left and not reward_left and not reward_right:
+            reward_left = True
+            reward_left_count += 1
+            reward_left_start_time = current_time
+        elif poke_right and not reward_right and not reward_left:
+            reward_right = True
+            reward_right_count += 1
+            reward_right_start_time = current_time
+
+    # Handle click duration
+    if click and current_time - click_start_time &gt;= click_duration:
+        click = False
+
+    # Update previous poke states and set drinking state
+    prev_poke_left, prev_poke_right = poke_left, poke_right
+    drinking = poke_left or poke_right
+
+    # Convert target_queue to tuple for return
+    queue_tuple = tuple(target_queue) if target_queue else tuple()
+    
+    # Return values (added flip_state at the end)
+    return (canvas, Point(centroid_x, centroid_y), reward_state, reward_left, reward_right, 
+            poke_left, poke_right, drinking, in_iti, click, active_target, 
+            trial_count, reward_left_count, reward_right_count, tuple(target_distribution), flip_state)</ipy:Script>
+      </Expression>
+      <Expression xsi:type="ipy:PythonTransform">
+        <ipy:Name>Grid Visualization</ipy:Name>
+        <ipy:Script>import clr
+clr.AddReference("OpenCV.Net")
+clr.AddReference("System")
+from OpenCV.Net import *
+
+@returns(IplImage)
+def process(value):
+  return value[0]
+
+</ipy:Script>
+      </Expression>
+      <Expression xsi:type="ipy:PythonTransform">
+        <ipy:Name>flip_state</ipy:Name>
+        <ipy:Description />
+        <ipy:Script>@returns(bool)
+def process(value):
+  return bool(value[-1])</ipy:Script>
+      </Expression>
+      <Expression xsi:type="rx:PublishSubject">
+        <Name>Flip State</Name>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>VideoFilename</Name>
+      </Expression>
+      <Expression xsi:type="PropertyMapping">
+        <PropertyMappings>
+          <Property Name="FileName" />
+        </PropertyMappings>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="cv:VideoWriter">
+          <cv:FileName>E:\data\clickbait-place\data\motivate-test\7011\m0\10042025_7011_m0.avi</cv:FileName>
+          <cv:Suffix>None</cv:Suffix>
+          <cv:Buffered>true</cv:Buffered>
+          <cv:Overwrite>false</cv:Overwrite>
+          <cv:FourCC>FMP4</cv:FourCC>
+          <cv:FrameRate>30</cv:FrameRate>
+          <cv:FrameSize>
+            <cv:Width>0</cv:Width>
+            <cv:Height>0</cv:Height>
+          </cv:FrameSize>
+          <cv:ResizeInterpolation>NearestNeighbor</cv:ResizeInterpolation>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Timestamp" />
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Timestamp.DateTime</Selector>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>VideoTimestamp</Name>
+      </Expression>
+      <Expression xsi:type="PropertyMapping">
+        <PropertyMappings>
+          <Property Name="FileName" />
+        </PropertyMappings>
+      </Expression>
+      <Expression xsi:type="io:CsvWriter">
+        <io:FileName>E:\data\clickbait-place\data\motivate-test\7011\m0\10042025_7011_m0_video_timestamp.csv</io:FileName>
+        <io:Append>false</io:Append>
+        <io:Overwrite>false</io:Overwrite>
+        <io:Suffix>None</io:Suffix>
+        <io:IncludeHeader>false</io:IncludeHeader>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>SessionStart</Name>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>SessionDuration</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Zip" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:CombineLatest" />
+      </Expression>
+      <Expression xsi:type="ipy:PythonTransform">
+        <ipy:Name>Session Timer</ipy:Name>
+        <ipy:Script>import clr
+clr.AddReference("System.Windows.Forms")
+from System.Windows.Forms import SendKeys
+from System.Diagnostics import Process
+from System import TimeSpan, DateTime
+import time
+
+import ctypes
+user32 = ctypes.WinDLL('user32', use_last_error=True)
+
+
+
+def focus_window(window_title):
+    # Find all windows with matching title
+    processes = Process.GetProcesses()
+    for process in processes:
+        if process.MainWindowTitle.lower().find(window_title.lower()) != -1:
+            # Bring window to front and focus it
+            hwnd = process.MainWindowHandle.ToInt32()
+            if hwnd:
+                user32.SetForegroundWindow(hwnd)
+                return True
+    return False
+
+@returns(str)
+def process(value):
+    now = value[1]
+    start_time = value[0][0]
+    duration = TimeSpan.FromMinutes(value[0][1]) + TimeSpan.FromMinutes(.5)  # Add 10 seconds to pad startup time
+
+    format_string = "{minutes:02d}:{seconds:02d}"
+
+    elapsed = now - start_time
+    remaining = duration - elapsed
+    
+    minutes = int(remaining.TotalMinutes)
+    seconds = int(remaining.Seconds)
+    countdown = str("Time remaining: " + format_string.format(minutes=minutes, seconds=seconds))
+
+    if minutes &lt;= 0 and seconds &lt;= 0:
+        focus_window("clickbait_anemo")
+        countdown = "Time's up!"
+        SendKeys.SendWait("+{F5}")
+
+    return countdown
+</ipy:Script>
+      </Expression>
+      <Expression xsi:type="ipy:PythonTransform">
+        <ipy:Name>Trial Count</ipy:Name>
+        <ipy:Script># Get trial count
+
+@returns(int)
+def process(value):
+  return value[-3]</ipy:Script>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Timestamp" />
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Timestamp.DateTime</Selector>
+      </Expression>
+      <Expression xsi:type="ipy:PythonTransform">
+        <ipy:Name>Poke Left</ipy:Name>
+        <ipy:Script># Poke left status
+@returns(bool)
+def process(value):
+  return value[5]</ipy:Script>
+      </Expression>
+      <Expression xsi:type="ipy:PythonTransform">
+        <ipy:Name>Poke Right</ipy:Name>
+        <ipy:Script># Poke left status
+@returns(bool)
+def process(value):
+  return value[6]</ipy:Script>
+      </Expression>
+      <Expression xsi:type="ipy:PythonTransform">
+        <ipy:Name>Mouse Centroid</ipy:Name>
+        <ipy:Script>clr.AddReference("OpenCV.Net")
+from OpenCV.Net import *
+
+@returns(Point)
+def process(value):
+  return value[1]</ipy:Script>
+      </Expression>
+      <Expression xsi:type="ipy:PythonTransform">
+        <ipy:Name>Active Target</ipy:Name>
+        <ipy:Script>@returns(str)
+def process(value):
+  return str(value[10])</ipy:Script>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Zip" />
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>TrialEventsFilename</Name>
+      </Expression>
+      <Expression xsi:type="PropertyMapping">
+        <PropertyMappings>
+          <Property Name="FileName" />
+        </PropertyMappings>
+      </Expression>
+      <Expression xsi:type="io:CsvWriter">
+        <io:FileName>E:\data\clickbait-place\data\motivate-test\7011\m0\10042025_7011_m0_eventsA.csv</io:FileName>
+        <io:Delimiter>,</io:Delimiter>
+        <io:Append>false</io:Append>
+        <io:Overwrite>false</io:Overwrite>
+        <io:Suffix>None</io:Suffix>
+        <io:IncludeHeader>true</io:IncludeHeader>
+        <io:Selector>Item1,Item2,Item3,Item4,Item5,Item6</io:Selector>
+      </Expression>
+      <Expression xsi:type="ipy:PythonTransform">
+        <ipy:Name>ITI</ipy:Name>
+        <ipy:Script># ITI status
+
+@returns(bool)
+def process(value):
+  return value[8]</ipy:Script>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="ard:DigitalOutput">
+          <ard:PortName>Arduino Mega 2560</ard:PortName>
+          <ard:Pin>6</ard:Pin>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="ipy:PythonTransform">
+        <ipy:Name>Reward State</ipy:Name>
+        <ipy:Script># Get reward state
+
+@returns(bool)
+def process(value):
+  return value[2]</ipy:Script>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="ard:DigitalOutput">
+          <ard:PortName>Arduino Mega 2560</ard:PortName>
+          <ard:Pin>5</ard:Pin>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="ard:DigitalOutput">
+          <ard:PortName>Arduino Mega 2560</ard:PortName>
+          <ard:Pin>4</ard:Pin>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="ipy:PythonTransform">
+        <ipy:Name>Water Left</ipy:Name>
+        <ipy:Script># Get reward_left state
+
+@returns(bool)
+def process(value):
+  return value[3]</ipy:Script>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="ard:DigitalOutput">
+          <ard:PortName>Arduino Mega 2560</ard:PortName>
+          <ard:Pin>7</ard:Pin>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="ipy:PythonTransform">
+        <ipy:Name>Water Right</ipy:Name>
+        <ipy:Script># Get reward_right state and reward state
+
+@returns(bool)
+def process(value):
+  return value[4]</ipy:Script>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="ard:DigitalOutput">
+          <ard:PortName>Arduino Mega 2560</ard:PortName>
+          <ard:Pin>8</ard:Pin>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="ipy:PythonTransform">
+        <ipy:Name>Click</ipy:Name>
+        <ipy:Script># Get click state (click is always last item in return statement)
+
+@returns(bool)
+def process(value):
+  return value[9]</ipy:Script>
+      </Expression>
+      <Expression xsi:type="rx:SelectMany">
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>Beep</Name>
+            </Expression>
+            <Expression xsi:type="WorkflowOutput" />
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="1" Label="Source1" />
+          </Edges>
+        </Workflow>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="al:AudioPlayback">
+          <al:DeviceName>Generic Software on Speakers (High Definition Audio Device)</al:DeviceName>
+          <al:SampleRate>44100</al:SampleRate>
+          <al:State>Stopped</al:State>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="ipy:PythonTransform">
+        <ipy:Name>Reward Right Count</ipy:Name>
+        <ipy:Script># Get reward left count
+
+@returns(int)
+def process(value):
+  return value[-3]</ipy:Script>
+      </Expression>
+      <Expression xsi:type="ipy:PythonTransform">
+        <ipy:Name>Reward Left Count</ipy:Name>
+        <ipy:Script># Get reward left count
+
+@returns(int)
+def process(value):
+  return value[-4]</ipy:Script>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Zip" />
+      </Expression>
+      <Expression xsi:type="ipy:PythonTransform">
+        <ipy:Name>Combine Trial Counts</ipy:Name>
+        <ipy:Description />
+        <ipy:Script>@returns(str)
+def process(value):
+  reward_r = str(value.Item1)
+  reward_l = str(value.Item2)
+  total = str(value.Item1 + value.Item2)
+  trial_info = "Left: " + reward_l + " Right: " + reward_r + " Total: " + total
+  return trial_info</ipy:Script>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>TrialCountsFilename</Name>
+      </Expression>
+      <Expression xsi:type="PropertyMapping">
+        <PropertyMappings>
+          <Property Name="Path" />
+        </PropertyMappings>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="io:WriteAllText">
+          <io:Path>E:\data\clickbait-place\data\motivate-test\7011\m0\10042025_7011_m0_trialcounts.txt</io:Path>
+          <io:Overwrite>true</io:Overwrite>
+          <io:Append>false</io:Append>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>Flip State</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Zip" />
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>TrialRewardsFilename</Name>
+      </Expression>
+      <Expression xsi:type="PropertyMapping">
+        <PropertyMappings>
+          <Property Name="FileName" />
+        </PropertyMappings>
+      </Expression>
+      <Expression xsi:type="io:CsvWriter">
+        <io:FileName>E:\data\clickbait-place\data\motivate-test\7011\m0\10042025_7011_m0_eventsB.csv</io:FileName>
+        <io:Append>false</io:Append>
+        <io:Overwrite>false</io:Overwrite>
+        <io:Suffix>None</io:Suffix>
+        <io:IncludeHeader>true</io:IncludeHeader>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>RawVideoFilename</Name>
+      </Expression>
+      <Expression xsi:type="PropertyMapping">
+        <PropertyMappings>
+          <Property Name="FileName" />
+        </PropertyMappings>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="cv:VideoWriter">
+          <cv:FileName>E:\data\clickbait-place\data\motivate-test\7011\m0\10042025_7011_m0_raw.avi</cv:FileName>
+          <cv:Suffix>None</cv:Suffix>
+          <cv:Buffered>true</cv:Buffered>
+          <cv:Overwrite>false</cv:Overwrite>
+          <cv:FourCC>FMP4</cv:FourCC>
+          <cv:FrameRate>210</cv:FrameRate>
+          <cv:FrameSize>
+            <cv:Width>720</cv:Width>
+            <cv:Height>540</cv:Height>
+          </cv:FrameSize>
+          <cv:ResizeInterpolation>Linear</cv:ResizeInterpolation>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="al:AudioReader">
+          <al:FileName>C:\Users\smear_lab\Downloads\beep-02.wav</al:FileName>
+          <al:BufferLength>10</al:BufferLength>
+          <al:SampleRate>0</al:SampleRate>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="rx:ReplaySubject">
+        <Name>Beep</Name>
+        <rx:BufferSize xsi:nil="true" />
+      </Expression>
+      <Expression xsi:type="GroupWorkflow">
+        <Name>Air Flip</Name>
+        <Description />
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="gl:Timer">
+                <gl:DueTime>PT0S</gl:DueTime>
+                <gl:Period>PT30M</gl:Period>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Mod">
+              <Operand xsi:type="WorkflowProperty" TypeArguments="sys:Int64">
+                <Value>2</Value>
+              </Operand>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>Session Number</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:WithLatestFrom" />
+            </Expression>
+            <Expression xsi:type="ipy:PythonTransform">
+              <ipy:Script>@returns(tuple)
+def process(value):
+    time_period = value.Item1
+    session_num = int(value.Item2[1:])
+
+    if session_num % 2 == 0:
+      if time_period == 0:
+        return (True, False)
+      else:
+        return (False, True)
+
+    else:
+      if time_period == 0:
+        return (False, True)
+      else:
+        return (True, False)</ipy:Script>
+            </Expression>
+            <Expression xsi:type="ipy:PythonTransform">
+              <ipy:Name>Left Air</ipy:Name>
+              <ipy:Script>@returns(bool)
+def process(value):
+  return value[0]</ipy:Script>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="ard:DigitalOutput">
+                <ard:PortName>Arduino Mega 2560</ard:PortName>
+                <ard:Pin>48</ard:Pin>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="ipy:PythonTransform">
+              <ipy:Name>Right Air</ipy:Name>
+              <ipy:Script>@returns(bool)
+def process(value):
+  return value[1]</ipy:Script>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="ard:DigitalOutput">
+                <ard:PortName>Arduino Mega 2560</ard:PortName>
+                <ard:Pin>49</ard:Pin>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="IntProperty">
+                <Value>128</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="ard:AnalogOutput">
+                <ard:PortName>Arduino Mega 2560</ard:PortName>
+                <ard:Pin>3</ard:Pin>
+              </Combinator>
+            </Expression>
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="1" Label="Source1" />
+            <Edge From="1" To="3" Label="Source1" />
+            <Edge From="2" To="3" Label="Source2" />
+            <Edge From="3" To="4" Label="Source1" />
+            <Edge From="4" To="5" Label="Source1" />
+            <Edge From="4" To="7" Label="Source1" />
+            <Edge From="5" To="6" Label="Source1" />
+            <Edge From="7" To="8" Label="Source1" />
+            <Edge From="9" To="10" Label="Source1" />
+          </Edges>
+        </Workflow>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="GroupWorkflow">
+          <Name>Monitor Flip</Name>
+          <Workflow>
+            <Nodes>
+              <Expression xsi:type="Combinator">
+                <Combinator xsi:type="gl:CreateWindow">
+                  <gl:Width>3840</gl:Width>
+                  <gl:Height>1280</gl:Height>
+                  <gl:VSync>On</gl:VSync>
+                  <gl:SwapSync>false</gl:SwapSync>
+                  <gl:ClearColor>White</gl:ClearColor>
+                  <gl:ClearMask>DepthBufferBit ColorBufferBit</gl:ClearMask>
+                  <gl:CursorVisible>true</gl:CursorVisible>
+                  <gl:Location>
+                    <gl:X>3840</gl:X>
+                    <gl:Y>0</gl:Y>
+                  </gl:Location>
+                  <gl:WindowBorder>Hidden</gl:WindowBorder>
+                  <gl:WindowState>Normal</gl:WindowState>
+                  <gl:DisplayDevice>Primary</gl:DisplayDevice>
+                  <gl:TargetRenderFrequency>30</gl:TargetRenderFrequency>
+                  <gl:TargetUpdateFrequency xsi:nil="true" />
+                  <gl:RenderState />
+                  <gl:GraphicsMode>
+                    <gl:ColorFormat>
+                      <gl:Red>8</gl:Red>
+                      <gl:Green>8</gl:Green>
+                      <gl:Blue>8</gl:Blue>
+                      <gl:Alpha>8</gl:Alpha>
+                    </gl:ColorFormat>
+                    <gl:Depth>16</gl:Depth>
+                    <gl:Stencil>0</gl:Stencil>
+                    <gl:Samples>0</gl:Samples>
+                    <gl:AccumulatorFormat>
+                      <gl:Red>0</gl:Red>
+                      <gl:Green>0</gl:Green>
+                      <gl:Blue>0</gl:Blue>
+                      <gl:Alpha>0</gl:Alpha>
+                    </gl:AccumulatorFormat>
+                    <gl:Buffers>2</gl:Buffers>
+                    <gl:Stereo>false</gl:Stereo>
+                  </gl:GraphicsMode>
+                </Combinator>
+              </Expression>
+              <Expression xsi:type="IncludeWorkflow" Path="BonVision:Primitives.BonVisionResources.bonsai" />
+              <Expression xsi:type="Combinator">
+                <Combinator xsi:type="gl:TextureResources">
+                  <gl:Textures>
+                    <gl:TextureConfiguration xsi:type="gl:VideoTexture">
+                      <gl:Name>stimulus_monitor_2</gl:Name>
+                      <gl:Width>1280</gl:Width>
+                      <gl:Height>1920</gl:Height>
+                      <gl:InternalFormat>Rgba</gl:InternalFormat>
+                      <gl:WrapS>Repeat</gl:WrapS>
+                      <gl:WrapT>Repeat</gl:WrapT>
+                      <gl:MinFilter>Linear</gl:MinFilter>
+                      <gl:MagFilter>Linear</gl:MagFilter>
+                      <gl:FileName>D:\clickbait-place\stimuli\1515_b5_binary_m2.mp4</gl:FileName>
+                      <gl:FlipMode>Vertical</gl:FlipMode>
+                      <gl:FrameCount xsi:nil="true" />
+                      <gl:StartPosition>0</gl:StartPosition>
+                      <gl:BufferLength xsi:nil="true" />
+                    </gl:TextureConfiguration>
+                    <gl:TextureConfiguration xsi:type="gl:VideoTexture">
+                      <gl:Name>blank_screen</gl:Name>
+                      <gl:Width>1280</gl:Width>
+                      <gl:Height>1920</gl:Height>
+                      <gl:InternalFormat>Rgba</gl:InternalFormat>
+                      <gl:WrapS>Repeat</gl:WrapS>
+                      <gl:WrapT>Repeat</gl:WrapT>
+                      <gl:MinFilter>Linear</gl:MinFilter>
+                      <gl:MagFilter>Linear</gl:MagFilter>
+                      <gl:FileName>stimuli\blank_white.mp4</gl:FileName>
+                      <gl:FlipMode>Vertical</gl:FlipMode>
+                      <gl:FrameCount xsi:nil="true" />
+                      <gl:StartPosition>0</gl:StartPosition>
+                      <gl:BufferLength xsi:nil="true" />
+                    </gl:TextureConfiguration>
+                  </gl:Textures>
+                </Combinator>
+              </Expression>
+              <Expression xsi:type="Combinator">
+                <Combinator xsi:type="res:LoadResources" />
+              </Expression>
+              <Expression xsi:type="Combinator">
+                <Combinator xsi:type="gl:RenderFrame" />
+              </Expression>
+              <Expression xsi:type="IncludeWorkflow" Path="BonVision:Environment.NormalizedView.bonsai" />
+              <Expression xsi:type="rx:PublishSubject">
+                <Name>Draw</Name>
+              </Expression>
+              <Expression xsi:type="SubscribeSubject">
+                <Name>Draw</Name>
+              </Expression>
+              <Expression xsi:type="SubscribeSubject">
+                <Name>Flip State</Name>
+              </Expression>
+              <Expression xsi:type="SubscribeSubject">
+                <Name>Session Number</Name>
+              </Expression>
+              <Expression xsi:type="Combinator">
+                <Combinator xsi:type="rx:WithLatestFrom" />
+              </Expression>
+              <Expression xsi:type="ipy:PythonTransform">
+                <ipy:Script>@returns(float)
+def process(value):
+    flip_state = value.Item1
+    if flip_state == 0:
+      return -1.5
+    else:
+      return 1.5</ipy:Script>
+              </Expression>
+              <Expression xsi:type="PropertyMapping">
+                <PropertyMappings>
+                  <Property Name="LocationX" />
+                </PropertyMappings>
+              </Expression>
+              <Expression xsi:type="IncludeWorkflow" Path="BonVision:Primitives.DrawVideo.bonsai">
+                <TextureName>stimulus_monitor_2</TextureName>
+                <PlaybackRate>0</PlaybackRate>
+                <Loop>true</Loop>
+                <Angle>0</Angle>
+                <ExtentX>2.96</ExtentX>
+                <ExtentY>2</ExtentY>
+                <LocationX>1.5</LocationX>
+                <LocationY>0</LocationY>
+                <ScaleX>1</ScaleX>
+                <ScaleY>1</ScaleY>
+                <ShiftX>0</ShiftX>
+                <ShiftY>0</ShiftY>
+                <Layer>0</Layer>
+              </Expression>
+              <Expression xsi:type="Disable">
+                <Builder xsi:type="Combinator">
+                  <Combinator xsi:type="gl:Timer">
+                    <gl:DueTime>PT0S</gl:DueTime>
+                    <gl:Period>PT5M</gl:Period>
+                  </Combinator>
+                </Builder>
+              </Expression>
+              <Expression xsi:type="Disable">
+                <Builder xsi:type="PropertyMapping">
+                  <PropertyMappings>
+                    <Property Name="Value" />
+                  </PropertyMappings>
+                </Builder>
+              </Expression>
+              <Expression xsi:type="Disable">
+                <Builder xsi:type="Combinator">
+                  <Combinator xsi:type="IntProperty">
+                    <Value>0</Value>
+                  </Combinator>
+                </Builder>
+              </Expression>
+              <Expression xsi:type="Disable">
+                <Builder xsi:type="Mod">
+                  <Operand xsi:type="WorkflowProperty" TypeArguments="sys:Int64">
+                    <Value>2</Value>
+                  </Operand>
+                </Builder>
+              </Expression>
+              <Expression xsi:type="Disable">
+                <Builder xsi:type="SubscribeSubject">
+                  <Name>Session Number</Name>
+                </Builder>
+              </Expression>
+              <Expression xsi:type="Disable">
+                <Builder xsi:type="Combinator">
+                  <Combinator xsi:type="rx:WithLatestFrom" />
+                </Builder>
+              </Expression>
+            </Nodes>
+            <Edges>
+              <Edge From="0" To="1" Label="Source1" />
+              <Edge From="1" To="2" Label="Source1" />
+              <Edge From="2" To="3" Label="Source1" />
+              <Edge From="4" To="5" Label="Source1" />
+              <Edge From="5" To="6" Label="Source1" />
+              <Edge From="7" To="13" Label="Source1" />
+              <Edge From="8" To="10" Label="Source1" />
+              <Edge From="9" To="10" Label="Source2" />
+              <Edge From="10" To="11" Label="Source1" />
+              <Edge From="11" To="12" Label="Source1" />
+              <Edge From="12" To="13" Label="Source2" />
+              <Edge From="14" To="15" Label="Source1" />
+              <Edge From="15" To="16" Label="Source1" />
+              <Edge From="16" To="17" Label="Source1" />
+              <Edge From="17" To="19" Label="Source1" />
+              <Edge From="18" To="19" Label="Source2" />
+            </Edges>
+          </Workflow>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="GroupWorkflow">
+        <Name>Filename Definitions</Name>
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="ipy:PythonSource">
+              <ipy:Name>Get Start Timestamp</ipy:Name>
+              <ipy:Script>from System import DateTime
+
+# Get timestamp from beginning of session
+
+@returns(DateTime)
+def generate():
+  yield DateTime.Now
+</ipy:Script>
+            </Expression>
+            <Expression xsi:type="rx:ReplaySubject">
+              <Name>SessionStart</Name>
+              <rx:BufferSize xsi:nil="true" />
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>Date</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="StringProperty">
+                <Value>_</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>MouseID</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="StringProperty">
+                <Value>_</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>Session Number</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Zip" />
+            </Expression>
+            <Expression xsi:type="Add" />
+            <Expression xsi:type="rx:ReplaySubject">
+              <Name>File naming info</Name>
+              <rx:BufferSize xsi:nil="true" />
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>Path</Name>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>File naming info</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Zip" />
+            </Expression>
+            <Expression xsi:type="Add" />
+            <Expression xsi:type="Format" />
+            <Expression xsi:type="rx:ReplaySubject">
+              <Name>SessionData</Name>
+              <rx:BufferSize xsi:nil="true" />
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>SessionData</Name>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>AVI</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Zip" />
+            </Expression>
+            <Expression xsi:type="Add" />
+            <Expression xsi:type="Format" />
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="io:GetFullPath" />
+            </Expression>
+            <Expression xsi:type="rx:ReplaySubject">
+              <Name>VideoFilename</Name>
+              <rx:BufferSize xsi:nil="true" />
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>SessionData</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="StringProperty">
+                <Value>_video_timestamp</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>CSV</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Zip" />
+            </Expression>
+            <Expression xsi:type="Add" />
+            <Expression xsi:type="Format" />
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="io:GetFullPath" />
+            </Expression>
+            <Expression xsi:type="rx:ReplaySubject">
+              <Name>VideoTimestamp</Name>
+              <rx:BufferSize xsi:nil="true" />
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>SessionData</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="StringProperty">
+                <Value>_amplifierdata</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>BIN</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Zip" />
+            </Expression>
+            <Expression xsi:type="Add" />
+            <Expression xsi:type="Format" />
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="io:GetFullPath" />
+            </Expression>
+            <Expression xsi:type="rx:ReplaySubject">
+              <Name>AmplifierDataFilename</Name>
+              <rx:BufferSize xsi:nil="true" />
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>SessionData</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="StringProperty">
+                <Value>_daq</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>BIN</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Zip" />
+            </Expression>
+            <Expression xsi:type="Add" />
+            <Expression xsi:type="Format" />
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="io:GetFullPath" />
+            </Expression>
+            <Expression xsi:type="rx:ReplaySubject">
+              <Name>DAQData</Name>
+              <rx:BufferSize xsi:nil="true" />
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>SessionData</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="StringProperty">
+                <Value>_occupancy</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>JPG</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Zip" />
+            </Expression>
+            <Expression xsi:type="Add" />
+            <Expression xsi:type="Format" />
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="io:GetFullPath" />
+            </Expression>
+            <Expression xsi:type="rx:ReplaySubject">
+              <Name>HistogramFilename</Name>
+              <rx:BufferSize xsi:nil="true" />
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>SessionData</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="StringProperty">
+                <Value>_trialcounts</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>TXT</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Zip" />
+            </Expression>
+            <Expression xsi:type="Add" />
+            <Expression xsi:type="Format" />
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="io:GetFullPath" />
+            </Expression>
+            <Expression xsi:type="rx:ReplaySubject">
+              <Name>TrialCountsFilename</Name>
+              <rx:BufferSize xsi:nil="true" />
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>SessionData</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="StringProperty">
+                <Value>_eventsA</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>CSV</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Zip" />
+            </Expression>
+            <Expression xsi:type="Add" />
+            <Expression xsi:type="Format" />
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="io:GetFullPath" />
+            </Expression>
+            <Expression xsi:type="rx:ReplaySubject">
+              <Name>TrialEventsFilename</Name>
+              <rx:BufferSize xsi:nil="true" />
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>SessionData</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="StringProperty">
+                <Value>_eventsB</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>CSV</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Zip" />
+            </Expression>
+            <Expression xsi:type="Add" />
+            <Expression xsi:type="Format" />
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="io:GetFullPath" />
+            </Expression>
+            <Expression xsi:type="rx:ReplaySubject">
+              <Name>TrialRewardsFilename</Name>
+              <rx:BufferSize xsi:nil="true" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="StringProperty">
+                <Value>.jpg</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="rx:ReplaySubject">
+              <Name>JPG</Name>
+              <rx:BufferSize xsi:nil="true" />
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>SessionData</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="StringProperty">
+                <Value>_raw</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>AVI</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Zip" />
+            </Expression>
+            <Expression xsi:type="Add" />
+            <Expression xsi:type="Format" />
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="io:GetFullPath" />
+            </Expression>
+            <Expression xsi:type="rx:ReplaySubject">
+              <Name>RawVideoFilename</Name>
+              <rx:BufferSize xsi:nil="true" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="StringProperty">
+                <Value>.csv</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="rx:ReplaySubject">
+              <Name>CSV</Name>
+              <rx:BufferSize xsi:nil="true" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="StringProperty">
+                <Value>.avi</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="rx:ReplaySubject">
+              <Name>AVI</Name>
+              <rx:BufferSize xsi:nil="true" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="StringProperty">
+                <Value>.txt</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="rx:ReplaySubject">
+              <Name>TXT</Name>
+              <rx:BufferSize xsi:nil="true" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="StringProperty">
+                <Value>.bin</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="rx:ReplaySubject">
+              <Name>BIN</Name>
+              <rx:BufferSize xsi:nil="true" />
+            </Expression>
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="1" Label="Source1" />
+            <Edge From="2" To="7" Label="Source1" />
+            <Edge From="3" To="7" Label="Source2" />
+            <Edge From="4" To="7" Label="Source3" />
+            <Edge From="5" To="7" Label="Source4" />
+            <Edge From="6" To="7" Label="Source5" />
+            <Edge From="7" To="8" Label="Source1" />
+            <Edge From="8" To="9" Label="Source1" />
+            <Edge From="10" To="12" Label="Source1" />
+            <Edge From="11" To="12" Label="Source2" />
+            <Edge From="12" To="13" Label="Source1" />
+            <Edge From="13" To="14" Label="Source1" />
+            <Edge From="14" To="15" Label="Source1" />
+            <Edge From="16" To="18" Label="Source1" />
+            <Edge From="17" To="18" Label="Source2" />
+            <Edge From="18" To="19" Label="Source1" />
+            <Edge From="19" To="20" Label="Source1" />
+            <Edge From="20" To="21" Label="Source1" />
+            <Edge From="21" To="22" Label="Source1" />
+            <Edge From="23" To="26" Label="Source1" />
+            <Edge From="24" To="26" Label="Source2" />
+            <Edge From="25" To="26" Label="Source3" />
+            <Edge From="26" To="27" Label="Source1" />
+            <Edge From="27" To="28" Label="Source1" />
+            <Edge From="28" To="29" Label="Source1" />
+            <Edge From="29" To="30" Label="Source1" />
+            <Edge From="31" To="34" Label="Source1" />
+            <Edge From="32" To="34" Label="Source2" />
+            <Edge From="33" To="34" Label="Source3" />
+            <Edge From="34" To="35" Label="Source1" />
+            <Edge From="35" To="36" Label="Source1" />
+            <Edge From="36" To="37" Label="Source1" />
+            <Edge From="37" To="38" Label="Source1" />
+            <Edge From="39" To="42" Label="Source1" />
+            <Edge From="40" To="42" Label="Source2" />
+            <Edge From="41" To="42" Label="Source3" />
+            <Edge From="42" To="43" Label="Source1" />
+            <Edge From="43" To="44" Label="Source1" />
+            <Edge From="44" To="45" Label="Source1" />
+            <Edge From="45" To="46" Label="Source1" />
+            <Edge From="47" To="50" Label="Source1" />
+            <Edge From="48" To="50" Label="Source2" />
+            <Edge From="49" To="50" Label="Source3" />
+            <Edge From="50" To="51" Label="Source1" />
+            <Edge From="51" To="52" Label="Source1" />
+            <Edge From="52" To="53" Label="Source1" />
+            <Edge From="53" To="54" Label="Source1" />
+            <Edge From="55" To="58" Label="Source1" />
+            <Edge From="56" To="58" Label="Source2" />
+            <Edge From="57" To="58" Label="Source3" />
+            <Edge From="58" To="59" Label="Source1" />
+            <Edge From="59" To="60" Label="Source1" />
+            <Edge From="60" To="61" Label="Source1" />
+            <Edge From="61" To="62" Label="Source1" />
+            <Edge From="63" To="66" Label="Source1" />
+            <Edge From="64" To="66" Label="Source2" />
+            <Edge From="65" To="66" Label="Source3" />
+            <Edge From="66" To="67" Label="Source1" />
+            <Edge From="67" To="68" Label="Source1" />
+            <Edge From="68" To="69" Label="Source1" />
+            <Edge From="69" To="70" Label="Source1" />
+            <Edge From="71" To="74" Label="Source1" />
+            <Edge From="72" To="74" Label="Source2" />
+            <Edge From="73" To="74" Label="Source3" />
+            <Edge From="74" To="75" Label="Source1" />
+            <Edge From="75" To="76" Label="Source1" />
+            <Edge From="76" To="77" Label="Source1" />
+            <Edge From="77" To="78" Label="Source1" />
+            <Edge From="79" To="80" Label="Source1" />
+            <Edge From="81" To="84" Label="Source1" />
+            <Edge From="82" To="84" Label="Source2" />
+            <Edge From="83" To="84" Label="Source3" />
+            <Edge From="84" To="85" Label="Source1" />
+            <Edge From="85" To="86" Label="Source1" />
+            <Edge From="86" To="87" Label="Source1" />
+            <Edge From="87" To="88" Label="Source1" />
+            <Edge From="89" To="90" Label="Source1" />
+            <Edge From="91" To="92" Label="Source1" />
+            <Edge From="93" To="94" Label="Source1" />
+            <Edge From="95" To="96" Label="Source1" />
+          </Edges>
+        </Workflow>
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Value" DisplayName="Date" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="StringProperty">
+          <Value>10042025</Value>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="rx:ReplaySubject">
+        <Name>Date</Name>
+        <rx:BufferSize xsi:nil="true" />
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Value" DisplayName="Session Duration (Minutes)" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="FloatProperty">
+          <Value>20</Value>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="rx:ReplaySubject">
+        <Name>SessionDuration</Name>
+        <rx:BufferSize xsi:nil="true" />
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Value" DisplayName="MouseID" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="StringProperty">
+          <Value>7011</Value>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="rx:ReplaySubject">
+        <Name>MouseID</Name>
+        <rx:BufferSize xsi:nil="true" />
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Value" DisplayName="Session Num." />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="StringProperty">
+          <Value>m0</Value>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="rx:ReplaySubject">
+        <Name>Session Number</Name>
+        <rx:BufferSize xsi:nil="true" />
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Value" DisplayName="Implant Type" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="StringProperty">
+          <Value>motivate-test</Value>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="rx:ReplaySubject">
+        <Name>ExpName</Name>
+        <rx:BufferSize xsi:nil="true" />
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Value" DisplayName="Data Directory" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="StringProperty">
+          <Value>E:/data/clickbait-place/data/</Value>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="StringProperty">
+          <Value>\</Value>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>ExpName</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="StringProperty">
+          <Value>\</Value>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>MouseID</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="StringProperty">
+          <Value>\</Value>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>Session Number</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="StringProperty">
+          <Value>\</Value>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Zip" />
+      </Expression>
+      <Expression xsi:type="Add" />
+      <Expression xsi:type="rx:ReplaySubject">
+        <Name>Path</Name>
+        <rx:BufferSize xsi:nil="true" />
+      </Expression>
+    </Nodes>
+    <Edges>
+      <Edge From="1" To="2" Label="Source1" />
+      <Edge From="2" To="3" Label="Source1" />
+      <Edge From="2" To="80" Label="Source1" />
+      <Edge From="3" To="4" Label="Source1" />
+      <Edge From="4" To="5" Label="Source1" />
+      <Edge From="5" To="6" Label="Source1" />
+      <Edge From="5" To="16" Label="Source1" />
+      <Edge From="5" To="32" Label="Source1" />
+      <Edge From="6" To="7" Label="Source1" />
+      <Edge From="7" To="8" Label="Source1" />
+      <Edge From="8" To="9" Label="Source1" />
+      <Edge From="9" To="10" Label="Source1" />
+      <Edge From="10" To="11" Label="Source1" />
+      <Edge From="11" To="12" Label="Source1" />
+      <Edge From="12" To="13" Label="Source1" />
+      <Edge From="13" To="14" Label="Source1" />
+      <Edge From="13" To="15" Label="Source1" />
+      <Edge From="14" To="17" Label="Source1" />
+      <Edge From="15" To="17" Label="Source2" />
+      <Edge From="16" To="17" Label="Source3" />
+      <Edge From="17" To="25" Label="Source1" />
+      <Edge From="18" To="19" Label="Source1" />
+      <Edge From="19" To="20" Label="Source1" />
+      <Edge From="20" To="24" Label="Source1" />
+      <Edge From="21" To="22" Label="Source1" />
+      <Edge From="22" To="23" Label="Source1" />
+      <Edge From="23" To="24" Label="Source2" />
+      <Edge From="24" To="25" Label="Source2" />
+      <Edge From="25" To="26" Label="Source1" />
+      <Edge From="26" To="27" Label="Source1" />
+      <Edge From="26" To="28" Label="Source1" />
+      <Edge From="26" To="43" Label="Source1" />
+      <Edge From="26" To="44" Label="Source1" />
+      <Edge From="26" To="46" Label="Source1" />
+      <Edge From="26" To="47" Label="Source1" />
+      <Edge From="26" To="48" Label="Source1" />
+      <Edge From="26" To="49" Label="Source1" />
+      <Edge From="26" To="54" Label="Source1" />
+      <Edge From="26" To="56" Label="Source1" />
+      <Edge From="26" To="59" Label="Source1" />
+      <Edge From="26" To="61" Label="Source1" />
+      <Edge From="26" To="63" Label="Source1" />
+      <Edge From="26" To="66" Label="Source1" />
+      <Edge From="26" To="67" Label="Source1" />
+      <Edge From="28" To="29" Label="Source1" />
+      <Edge From="30" To="31" Label="Source1" />
+      <Edge From="31" To="32" Label="Source2" />
+      <Edge From="32" To="33" Label="Source1" />
+      <Edge From="33" To="34" Label="Source1" />
+      <Edge From="34" To="37" Label="Source1" />
+      <Edge From="34" To="41" Label="Source2" />
+      <Edge From="35" To="36" Label="Source1" />
+      <Edge From="36" To="37" Label="Source2" />
+      <Edge From="38" To="40" Label="Source1" />
+      <Edge From="39" To="40" Label="Source2" />
+      <Edge From="40" To="41" Label="Source1" />
+      <Edge From="41" To="42" Label="Source1" />
+      <Edge From="43" To="50" Label="Source1" />
+      <Edge From="43" To="68" Label="Source3" />
+      <Edge From="44" To="45" Label="Source1" />
+      <Edge From="45" To="50" Label="Source2" />
+      <Edge From="46" To="50" Label="Source3" />
+      <Edge From="47" To="50" Label="Source4" />
+      <Edge From="48" To="50" Label="Source5" />
+      <Edge From="49" To="50" Label="Source6" />
+      <Edge From="50" To="53" Label="Source1" />
+      <Edge From="51" To="52" Label="Source1" />
+      <Edge From="52" To="53" Label="Source2" />
+      <Edge From="54" To="55" Label="Source1" />
+      <Edge From="54" To="74" Label="Source1" />
+      <Edge From="56" To="57" Label="Source1" />
+      <Edge From="56" To="58" Label="Source1" />
+      <Edge From="56" To="74" Label="Source2" />
+      <Edge From="59" To="60" Label="Source1" />
+      <Edge From="59" To="74" Label="Source3" />
+      <Edge From="61" To="62" Label="Source1" />
+      <Edge From="61" To="74" Label="Source4" />
+      <Edge From="63" To="64" Label="Source1" />
+      <Edge From="63" To="74" Label="Source5" />
+      <Edge From="64" To="65" Label="Source1" />
+      <Edge From="66" To="68" Label="Source1" />
+      <Edge From="67" To="68" Label="Source2" />
+      <Edge From="68" To="69" Label="Source1" />
+      <Edge From="69" To="72" Label="Source1" />
+      <Edge From="70" To="71" Label="Source1" />
+      <Edge From="71" To="72" Label="Source2" />
+      <Edge From="73" To="74" Label="Source6" />
+      <Edge From="74" To="77" Label="Source1" />
+      <Edge From="75" To="76" Label="Source1" />
+      <Edge From="76" To="77" Label="Source2" />
+      <Edge From="78" To="79" Label="Source1" />
+      <Edge From="79" To="80" Label="Source2" />
+      <Edge From="81" To="82" Label="Source1" />
+      <Edge From="86" To="87" Label="Source1" />
+      <Edge From="87" To="88" Label="Source1" />
+      <Edge From="89" To="90" Label="Source1" />
+      <Edge From="90" To="91" Label="Source1" />
+      <Edge From="92" To="93" Label="Source1" />
+      <Edge From="93" To="94" Label="Source1" />
+      <Edge From="95" To="96" Label="Source1" />
+      <Edge From="96" To="97" Label="Source1" />
+      <Edge From="98" To="99" Label="Source1" />
+      <Edge From="99" To="100" Label="Source1" />
+      <Edge From="101" To="102" Label="Source1" />
+      <Edge From="102" To="110" Label="Source1" />
+      <Edge From="103" To="110" Label="Source2" />
+      <Edge From="104" To="110" Label="Source3" />
+      <Edge From="105" To="110" Label="Source4" />
+      <Edge From="106" To="110" Label="Source5" />
+      <Edge From="107" To="110" Label="Source6" />
+      <Edge From="108" To="110" Label="Source7" />
+      <Edge From="109" To="110" Label="Source8" />
+      <Edge From="110" To="111" Label="Source1" />
+      <Edge From="111" To="112" Label="Source1" />
+    </Edges>
+  </Workflow>
+</WorkflowBuilder>
