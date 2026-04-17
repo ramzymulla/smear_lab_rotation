@@ -270,7 +270,7 @@ in_withdrawal_period = False
 prev_poke_left = False
 prev_poke_right = False
 
-reward_timeout_duration = 10.0  # seconds animal has to poke after target hit
+reward_timeout_duration = 5.0  # seconds animal has to poke after target hit
 reward_window_start_time = 0    # timestamp when reward_state became True
 failed_trial_count = 0          # incremented on timeout
 
@@ -309,8 +309,8 @@ def process(value):
     global reward_window_start_time, failed_trial_count
 
     current_time = time.time()
-    reward_duration_left  = 0.076
-    reward_duration_right = 0.089
+    reward_duration_left  = 0.066
+    reward_duration_right = 0.078
     click_duration        = 0.1
     iti_duration_min      = 1.0
     iti_duration_max      = 5.0

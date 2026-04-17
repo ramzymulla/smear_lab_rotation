@@ -75,7 +75,7 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="ffmpeg:VideoWriter">
-          <ffmpeg:FileName>E:\data\clickbait-place\data\thermister\2210\t4\04152026_2210_t4.avi</ffmpeg:FileName>
+          <ffmpeg:FileName>E:\data\clickbait-loco\thermister\2208\t6\04172026_2208_t6.avi</ffmpeg:FileName>
           <ffmpeg:Suffix>None</ffmpeg:Suffix>
           <ffmpeg:Overwrite>false</ffmpeg:Overwrite>
           <ffmpeg:FrameRate>30</ffmpeg:FrameRate>
@@ -97,7 +97,7 @@
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-place\data\thermister\2210\t4\04152026_2210_t4_video_timestamp.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\thermister\2208\t6\04172026_2208_t6_video_timestamp.csv</io:FileName>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>None</io:Suffix>
@@ -272,7 +272,7 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="cv:Threshold">
-          <cv:ThresholdValue>62</cv:ThresholdValue>
+          <cv:ThresholdValue>65</cv:ThresholdValue>
           <cv:MaxValue>255</cv:MaxValue>
           <cv:ThresholdType>Binary</cv:ThresholdType>
         </Combinator>
@@ -635,7 +635,7 @@ in_withdrawal_period = False
 prev_poke_left = False
 prev_poke_right = False
 
-reward_timeout_duration = 10.0  # seconds animal has to poke after target hit
+reward_timeout_duration = 5.0  # seconds animal has to poke after target hit
 reward_window_start_time = 0    # timestamp when reward_state became True
 failed_trial_count = 0          # incremented on timeout
 
@@ -674,8 +674,8 @@ def process(value):
     global reward_window_start_time, failed_trial_count
 
     current_time = time.time()
-    reward_duration_left  = 0.076
-    reward_duration_right = 0.089
+    reward_duration_left  = 0.066
+    reward_duration_right = 0.078
     click_duration        = 0.1
     iti_duration_min      = 1.0
     iti_duration_max      = 5.0
@@ -801,6 +801,8 @@ def process(value):
 
     if click and current_time - click_start_time &gt;= click_duration:
         click = False
+
+
 
     prev_poke_left  = poke_left
     prev_poke_right = poke_right
@@ -976,7 +978,18 @@ def process(value):
   return value[13]</ipy:Script>
       </Expression>
       <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:CombineLatest" />
+        <Combinator xsi:type="rx:Zip" />
+      </Expression>
+      <Expression xsi:type="scr:ExpressionTransform">
+        <scr:Expression>new(
+it.Item1 as trialCount,
+it.Item2 as timeStamp,
+it.Item3 as pokeLeft,
+it.Item4 as pokeRight,
+it.Item5 as activeTarget,
+it.Item6 as targetRadius
+)
+</scr:Expression>
       </Expression>
       <Expression xsi:type="SubscribeSubject">
         <Name>TrialEventsFilename</Name>
@@ -987,7 +1000,7 @@ def process(value):
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-place\data\thermister\2210\t4\04152026_2210_t4_eventsA.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\thermister\2208\t6\04172026_2208_t6_eventsA.csv</io:FileName>
         <io:Delimiter>,</io:Delimiter>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
@@ -1089,7 +1102,7 @@ def process(value):
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="io:WriteAllText">
-          <io:Path>E:\data\clickbait-place\data\thermister\2210\t4\04152026_2210_t4_trialcounts.txt</io:Path>
+          <io:Path>E:\data\clickbait-loco\thermister\2208\t6\04172026_2208_t6_trialcounts.txt</io:Path>
           <io:Overwrite>true</io:Overwrite>
           <io:Append>false</io:Append>
         </Combinator>
@@ -1105,6 +1118,15 @@ def process(value):
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:Zip" />
       </Expression>
+      <Expression xsi:type="scr:ExpressionTransform">
+        <scr:Expression>new(
+it.Item1 as inITI,
+it.Item2 as rewardState,
+it.Item3 as waterLeft,
+it.Item4 as waterRight,
+it.Item5 as clickState
+)</scr:Expression>
+      </Expression>
       <Expression xsi:type="SubscribeSubject">
         <Name>TrialRewardsFilename</Name>
       </Expression>
@@ -1114,7 +1136,48 @@ def process(value):
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-place\data\thermister\2210\t4\04152026_2210_t4_eventsB.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\thermister\2208\t6\04172026_2208_t6_eventsB.csv</io:FileName>
+        <io:Append>false</io:Append>
+        <io:Overwrite>false</io:Overwrite>
+        <io:Suffix>None</io:Suffix>
+        <io:IncludeHeader>true</io:IncludeHeader>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:ObserveOn">
+          <rx:Scheduler>NewThreadScheduler</rx:Scheduler>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Timestamp" />
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Timestamp.DateTime</Selector>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:TimeInterval" />
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Interval.Milliseconds</Selector>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Zip" />
+      </Expression>
+      <Expression xsi:type="scr:ExpressionTransform">
+        <scr:Expression>new(
+it.Item1 as timestamp,
+it.Item2 as interval_ms
+)</scr:Expression>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>RawVideoTimestamp</Name>
+      </Expression>
+      <Expression xsi:type="PropertyMapping">
+        <PropertyMappings>
+          <Property Name="FileName" />
+        </PropertyMappings>
+      </Expression>
+      <Expression xsi:type="io:CsvWriter">
+        <io:FileName>E:\data\clickbait-loco\thermister\2208\t6\04172026_2208_t6_raw_video_timestamp.csv</io:FileName>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>None</io:Suffix>
@@ -1144,12 +1207,12 @@ def process(value):
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="cv:AffineTransform">
           <cv:Pivot>
-            <cv:X>355.453217</cv:X>
-            <cv:Y>795.1442</cv:Y>
+            <cv:X>535.645264</cv:X>
+            <cv:Y>156.490646</cv:Y>
           </cv:Pivot>
           <cv:Translation>
-            <cv:X>-105.453217</cv:X>
-            <cv:Y>-545.1442</cv:Y>
+            <cv:X>-285.645264</cv:X>
+            <cv:Y>93.50935</cv:Y>
           </cv:Translation>
           <cv:Rotation>0</cv:Rotation>
           <cv:Scale>
@@ -1170,7 +1233,7 @@ def process(value):
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="cv:WarpAffine">
-          <cv:Transform>1,0,-103.2629;0,1,-550.6533</cv:Transform>
+          <cv:Transform>1,0,-282.3983;0,1,97.53101</cv:Transform>
           <cv:Flags>Linear</cv:Flags>
           <cv:FillValue>
             <cv:Val0>0</cv:Val0>
@@ -1200,7 +1263,7 @@ def process(value):
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="ffmpeg:VideoWriter">
-          <ffmpeg:FileName>E:\data\clickbait-place\data\thermister\2210\t4\04152026_2210_t4_raw.avi</ffmpeg:FileName>
+          <ffmpeg:FileName>E:\data\clickbait-loco\thermister\2208\t6\04172026_2208_t6_raw.avi</ffmpeg:FileName>
           <ffmpeg:Suffix>None</ffmpeg:Suffix>
           <ffmpeg:Overwrite>false</ffmpeg:Overwrite>
           <ffmpeg:FrameRate>210</ffmpeg:FrameRate>
@@ -1382,13 +1445,16 @@ def process(value):
         <ipy:Name>ProcessVelocities</ipy:Name>
         <ipy:Script>import math
 
-global pixDistConv
-global dur
-global minTargetRadius
+
+radiusTarget = 150.0
 minTargetRadius = 150.0
 dur = 1.0/30.0
+
 @returns(tuple)
 def process(value):
+    global radiusTarget
+    global minTargetRadius
+    global dur
     # print(value[0])
     # print(value[1])
     da,dx,dy = value.Item1,value.Item2,value.Item3
@@ -1399,13 +1465,19 @@ def process(value):
     angVel = abs(da)/dur # rad/s
     orbitalRadius = min(v/angVel if angVel &gt; 0 else float(60000), 1000) # px
     # print(v)
-    if v &gt; 500 and 0:
+    # if v &gt; 500 and 0:
         
-        targetRadius = max(headingAngle*100, minTargetRadius)
-        # print(angVel)
-    else: 
-        targetRadius = minTargetRadius
-    return (targetRadius,angVel,v,orbitalRadius,headingAngle)
+    #     targetRadius = max(headingAngle*100, minTargetRadius)
+    #     # print(angVel)
+    # else: 
+    #     targetRadius = minTargetRadius
+
+    if v &gt; 300:
+        if radiusTarget &lt; 500:
+            radiusTarget += 10*dur*(v/300)
+    else:
+        radiusTarget = minTargetRadius
+    return (radiusTarget,angVel,v,orbitalRadius,headingAngle)
 </ipy:Script>
       </Expression>
       <Expression xsi:type="ipy:PythonTransform">
@@ -1418,6 +1490,12 @@ def process(value):
       </Expression>
       <Expression xsi:type="rx:BehaviorSubject">
         <Name>TargetRadius</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Timestamp" />
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Timestamp.DateTime</Selector>
       </Expression>
       <Expression xsi:type="ipy:PythonTransform">
         <ipy:Name>Mouse Centroid</ipy:Name>
@@ -1461,6 +1539,16 @@ def process(value):
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:Zip" />
       </Expression>
+      <Expression xsi:type="scr:ExpressionTransform">
+        <scr:Expression>new(
+it.Item1 as timestamp,
+it.Item2 as centroid,
+it.Item3 as velocity,
+it.Item4 as angularVelocity,
+it.Item5 as orbitalRadius,
+it.Item6 as headingAngle
+)</scr:Expression>
+      </Expression>
       <Expression xsi:type="SubscribeSubject">
         <Name>KinematicsFilename</Name>
       </Expression>
@@ -1470,7 +1558,7 @@ def process(value):
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-place\data\thermister\2210\t4\04152026_2210_t4_kinematicsA.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\thermister\2208\t6\04172026_2208_t6_kinematicsA.csv</io:FileName>
         <io:Delimiter>,</io:Delimiter>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
@@ -1764,6 +1852,29 @@ def generate():
             </Expression>
             <Expression xsi:type="rx:ReplaySubject">
               <Name>VideoTimestamp</Name>
+              <rx:BufferSize xsi:nil="true" />
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>SessionData</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="StringProperty">
+                <Value>_raw_video_timestamp</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>CSV</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Zip" />
+            </Expression>
+            <Expression xsi:type="Add" />
+            <Expression xsi:type="Format" />
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="io:GetFullPath" />
+            </Expression>
+            <Expression xsi:type="rx:ReplaySubject">
+              <Name>RawVideoTimestamp</Name>
               <rx:BufferSize xsi:nil="true" />
             </Expression>
             <Expression xsi:type="SubscribeSubject">
@@ -2074,26 +2185,33 @@ def generate():
             <Edge From="75" To="76" Label="Source1" />
             <Edge From="76" To="77" Label="Source1" />
             <Edge From="77" To="78" Label="Source1" />
-            <Edge From="79" To="80" Label="Source1" />
-            <Edge From="81" To="82" Label="Source1" />
-            <Edge From="83" To="86" Label="Source1" />
-            <Edge From="84" To="86" Label="Source2" />
-            <Edge From="85" To="86" Label="Source3" />
-            <Edge From="86" To="87" Label="Source1" />
+            <Edge From="79" To="82" Label="Source1" />
+            <Edge From="80" To="82" Label="Source2" />
+            <Edge From="81" To="82" Label="Source3" />
+            <Edge From="82" To="83" Label="Source1" />
+            <Edge From="83" To="84" Label="Source1" />
+            <Edge From="84" To="85" Label="Source1" />
+            <Edge From="85" To="86" Label="Source1" />
             <Edge From="87" To="88" Label="Source1" />
-            <Edge From="88" To="89" Label="Source1" />
             <Edge From="89" To="90" Label="Source1" />
-            <Edge From="91" To="92" Label="Source1" />
-            <Edge From="93" To="94" Label="Source1" />
+            <Edge From="91" To="94" Label="Source1" />
+            <Edge From="92" To="94" Label="Source2" />
+            <Edge From="93" To="94" Label="Source3" />
+            <Edge From="94" To="95" Label="Source1" />
             <Edge From="95" To="96" Label="Source1" />
+            <Edge From="96" To="97" Label="Source1" />
             <Edge From="97" To="98" Label="Source1" />
-            <Edge From="99" To="102" Label="Source1" />
-            <Edge From="100" To="102" Label="Source2" />
-            <Edge From="101" To="102" Label="Source3" />
-            <Edge From="102" To="103" Label="Source1" />
+            <Edge From="99" To="100" Label="Source1" />
+            <Edge From="101" To="102" Label="Source1" />
             <Edge From="103" To="104" Label="Source1" />
-            <Edge From="104" To="105" Label="Source1" />
             <Edge From="105" To="106" Label="Source1" />
+            <Edge From="107" To="110" Label="Source1" />
+            <Edge From="108" To="110" Label="Source2" />
+            <Edge From="109" To="110" Label="Source3" />
+            <Edge From="110" To="111" Label="Source1" />
+            <Edge From="111" To="112" Label="Source1" />
+            <Edge From="112" To="113" Label="Source1" />
+            <Edge From="113" To="114" Label="Source1" />
           </Edges>
         </Workflow>
       </Expression>
@@ -2102,7 +2220,7 @@ def generate():
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="StringProperty">
-          <Value>04152026</Value>
+          <Value>04172026</Value>
         </Combinator>
       </Expression>
       <Expression xsi:type="rx:ReplaySubject">
@@ -2126,7 +2244,7 @@ def generate():
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="StringProperty">
-          <Value>2210</Value>
+          <Value>2208</Value>
         </Combinator>
       </Expression>
       <Expression xsi:type="rx:ReplaySubject">
@@ -2138,7 +2256,7 @@ def generate():
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="StringProperty">
-          <Value>t4</Value>
+          <Value>t6</Value>
         </Combinator>
       </Expression>
       <Expression xsi:type="rx:ReplaySubject">
@@ -2162,7 +2280,7 @@ def generate():
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="StringProperty">
-          <Value>E:/data/clickbait-place/data/</Value>
+          <Value>E:/data/clickbait-loco/</Value>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
@@ -2206,8 +2324,9 @@ def generate():
     <Edges>
       <Edge From="1" To="2" Label="Source1" />
       <Edge From="3" To="4" Label="Source1" />
+      <Edge From="3" To="84" Label="Source1" />
       <Edge From="4" To="5" Label="Source1" />
-      <Edge From="4" To="82" Label="Source1" />
+      <Edge From="4" To="94" Label="Source1" />
       <Edge From="5" To="6" Label="Source1" />
       <Edge From="6" To="7" Label="Source1" />
       <Edge From="7" To="8" Label="Source1" />
@@ -2232,15 +2351,15 @@ def generate():
       <Edge From="24" To="25" Label="Source1" />
       <Edge From="25" To="26" Label="Source1" />
       <Edge From="26" To="27" Label="Source1" />
-      <Edge From="26" To="98" Label="Source1" />
+      <Edge From="26" To="110" Label="Source1" />
       <Edge From="27" To="28" Label="Source1" />
       <Edge From="27" To="29" Label="Source1" />
-      <Edge From="27" To="83" Label="Source1" />
-      <Edge From="27" To="84" Label="Source1" />
+      <Edge From="27" To="95" Label="Source1" />
+      <Edge From="27" To="96" Label="Source1" />
       <Edge From="28" To="31" Label="Source1" />
-      <Edge From="28" To="103" Label="Source1" />
+      <Edge From="28" To="115" Label="Source1" />
       <Edge From="29" To="31" Label="Source2" />
-      <Edge From="29" To="107" Label="Source1" />
+      <Edge From="29" To="119" Label="Source1" />
       <Edge From="30" To="31" Label="Source3" />
       <Edge From="30" To="47" Label="Source1" />
       <Edge From="31" To="40" Label="Source1" />
@@ -2261,17 +2380,17 @@ def generate():
       <Edge From="41" To="55" Label="Source1" />
       <Edge From="41" To="56" Label="Source1" />
       <Edge From="41" To="57" Label="Source1" />
-      <Edge From="41" To="62" Label="Source1" />
-      <Edge From="41" To="66" Label="Source1" />
-      <Edge From="41" To="68" Label="Source1" />
-      <Edge From="41" To="70" Label="Source1" />
+      <Edge From="41" To="63" Label="Source1" />
+      <Edge From="41" To="67" Label="Source1" />
+      <Edge From="41" To="69" Label="Source1" />
       <Edge From="41" To="71" Label="Source1" />
-      <Edge From="41" To="77" Label="Source1" />
-      <Edge From="41" To="117" Label="Source1" />
+      <Edge From="41" To="72" Label="Source1" />
+      <Edge From="41" To="78" Label="Source1" />
+      <Edge From="41" To="131" Label="Source1" />
       <Edge From="42" To="43" Label="Source3" />
-      <Edge From="42" To="64" Label="Source1" />
       <Edge From="42" To="65" Label="Source1" />
-      <Edge From="42" To="78" Label="Source2" />
+      <Edge From="42" To="66" Label="Source1" />
+      <Edge From="42" To="79" Label="Source2" />
       <Edge From="43" To="44" Label="Source1" />
       <Edge From="45" To="46" Label="Source1" />
       <Edge From="46" To="49" Label="Source1" />
@@ -2279,100 +2398,116 @@ def generate():
       <Edge From="48" To="49" Label="Source2" />
       <Edge From="49" To="50" Label="Source1" />
       <Edge From="51" To="58" Label="Source1" />
-      <Edge From="51" To="72" Label="Source3" />
+      <Edge From="51" To="73" Label="Source3" />
       <Edge From="52" To="53" Label="Source1" />
       <Edge From="53" To="58" Label="Source2" />
       <Edge From="54" To="58" Label="Source3" />
       <Edge From="55" To="58" Label="Source4" />
       <Edge From="56" To="58" Label="Source5" />
       <Edge From="57" To="58" Label="Source6" />
-      <Edge From="58" To="61" Label="Source1" />
-      <Edge From="59" To="60" Label="Source1" />
-      <Edge From="60" To="61" Label="Source2" />
-      <Edge From="62" To="63" Label="Source1" />
-      <Edge From="62" To="78" Label="Source1" />
-      <Edge From="66" To="67" Label="Source1" />
-      <Edge From="66" To="78" Label="Source3" />
-      <Edge From="68" To="69" Label="Source1" />
-      <Edge From="68" To="78" Label="Source4" />
-      <Edge From="70" To="72" Label="Source1" />
-      <Edge From="71" To="72" Label="Source2" />
-      <Edge From="72" To="73" Label="Source1" />
-      <Edge From="73" To="76" Label="Source1" />
-      <Edge From="74" To="75" Label="Source1" />
-      <Edge From="75" To="76" Label="Source2" />
-      <Edge From="77" To="78" Label="Source5" />
-      <Edge From="77" To="94" Label="Source1" />
-      <Edge From="78" To="81" Label="Source1" />
+      <Edge From="58" To="59" Label="Source1" />
+      <Edge From="59" To="62" Label="Source1" />
+      <Edge From="60" To="61" Label="Source1" />
+      <Edge From="61" To="62" Label="Source2" />
+      <Edge From="63" To="64" Label="Source1" />
+      <Edge From="63" To="79" Label="Source1" />
+      <Edge From="67" To="68" Label="Source1" />
+      <Edge From="67" To="79" Label="Source3" />
+      <Edge From="69" To="70" Label="Source1" />
+      <Edge From="69" To="79" Label="Source4" />
+      <Edge From="71" To="73" Label="Source1" />
+      <Edge From="72" To="73" Label="Source2" />
+      <Edge From="73" To="74" Label="Source1" />
+      <Edge From="74" To="77" Label="Source1" />
+      <Edge From="75" To="76" Label="Source1" />
+      <Edge From="76" To="77" Label="Source2" />
+      <Edge From="78" To="79" Label="Source5" />
+      <Edge From="78" To="106" Label="Source1" />
       <Edge From="79" To="80" Label="Source1" />
-      <Edge From="80" To="81" Label="Source2" />
-      <Edge From="82" To="89" Label="Source1" />
-      <Edge From="83" To="84" Label="Source2" />
+      <Edge From="80" To="83" Label="Source1" />
+      <Edge From="81" To="82" Label="Source1" />
+      <Edge From="82" To="83" Label="Source2" />
       <Edge From="84" To="85" Label="Source1" />
+      <Edge From="84" To="87" Label="Source1" />
       <Edge From="85" To="86" Label="Source1" />
-      <Edge From="86" To="87" Label="Source1" />
+      <Edge From="86" To="89" Label="Source1" />
       <Edge From="87" To="88" Label="Source1" />
       <Edge From="88" To="89" Label="Source2" />
       <Edge From="89" To="90" Label="Source1" />
       <Edge From="90" To="93" Label="Source1" />
       <Edge From="91" To="92" Label="Source1" />
       <Edge From="92" To="93" Label="Source2" />
-      <Edge From="94" To="95" Label="Source1" />
-      <Edge From="95" To="96" Label="Source1" />
+      <Edge From="94" To="101" Label="Source1" />
+      <Edge From="95" To="96" Label="Source2" />
       <Edge From="96" To="97" Label="Source1" />
+      <Edge From="97" To="98" Label="Source1" />
       <Edge From="98" To="99" Label="Source1" />
       <Edge From="99" To="100" Label="Source1" />
-      <Edge From="100" To="101" Label="Source1" />
+      <Edge From="100" To="101" Label="Source2" />
       <Edge From="101" To="102" Label="Source1" />
-      <Edge From="102" To="111" Label="Source1" />
+      <Edge From="102" To="105" Label="Source1" />
       <Edge From="103" To="104" Label="Source1" />
-      <Edge From="104" To="105" Label="Source1" />
-      <Edge From="105" To="106" Label="Source1" />
-      <Edge From="106" To="111" Label="Source2" />
+      <Edge From="104" To="105" Label="Source2" />
+      <Edge From="106" To="107" Label="Source1" />
       <Edge From="107" To="108" Label="Source1" />
       <Edge From="108" To="109" Label="Source1" />
-      <Edge From="109" To="110" Label="Source1" />
-      <Edge From="110" To="111" Label="Source3" />
+      <Edge From="110" To="111" Label="Source1" />
       <Edge From="111" To="112" Label="Source1" />
       <Edge From="112" To="113" Label="Source1" />
       <Edge From="113" To="114" Label="Source1" />
-      <Edge From="114" To="115" Label="Source1" />
-      <Edge From="114" To="118" Label="Source1" />
-      <Edge From="114" To="119" Label="Source1" />
-      <Edge From="114" To="120" Label="Source1" />
-      <Edge From="114" To="121" Label="Source1" />
+      <Edge From="114" To="123" Label="Source1" />
       <Edge From="115" To="116" Label="Source1" />
-      <Edge From="117" To="122" Label="Source1" />
-      <Edge From="118" To="122" Label="Source2" />
-      <Edge From="119" To="122" Label="Source3" />
-      <Edge From="120" To="122" Label="Source4" />
-      <Edge From="121" To="122" Label="Source5" />
-      <Edge From="122" To="125" Label="Source1" />
+      <Edge From="116" To="117" Label="Source1" />
+      <Edge From="117" To="118" Label="Source1" />
+      <Edge From="118" To="123" Label="Source2" />
+      <Edge From="119" To="120" Label="Source1" />
+      <Edge From="120" To="121" Label="Source1" />
+      <Edge From="121" To="122" Label="Source1" />
+      <Edge From="122" To="123" Label="Source3" />
       <Edge From="123" To="124" Label="Source1" />
-      <Edge From="124" To="125" Label="Source2" />
+      <Edge From="124" To="125" Label="Source1" />
+      <Edge From="125" To="126" Label="Source1" />
+      <Edge From="126" To="127" Label="Source1" />
+      <Edge From="126" To="129" Label="Source1" />
+      <Edge From="126" To="132" Label="Source1" />
+      <Edge From="126" To="133" Label="Source1" />
+      <Edge From="126" To="134" Label="Source1" />
+      <Edge From="126" To="135" Label="Source1" />
       <Edge From="127" To="128" Label="Source1" />
-      <Edge From="128" To="129" Label="Source1" />
-      <Edge From="132" To="133" Label="Source1" />
-      <Edge From="133" To="134" Label="Source1" />
-      <Edge From="135" To="136" Label="Source1" />
+      <Edge From="129" To="130" Label="Source1" />
+      <Edge From="130" To="136" Label="Source1" />
+      <Edge From="131" To="136" Label="Source2" />
+      <Edge From="132" To="136" Label="Source3" />
+      <Edge From="133" To="136" Label="Source4" />
+      <Edge From="134" To="136" Label="Source5" />
+      <Edge From="135" To="136" Label="Source6" />
       <Edge From="136" To="137" Label="Source1" />
+      <Edge From="137" To="140" Label="Source1" />
       <Edge From="138" To="139" Label="Source1" />
-      <Edge From="139" To="140" Label="Source1" />
-      <Edge From="141" To="142" Label="Source1" />
+      <Edge From="139" To="140" Label="Source2" />
       <Edge From="142" To="143" Label="Source1" />
-      <Edge From="144" To="145" Label="Source1" />
-      <Edge From="145" To="146" Label="Source1" />
+      <Edge From="143" To="144" Label="Source1" />
       <Edge From="147" To="148" Label="Source1" />
-      <Edge From="148" To="156" Label="Source1" />
-      <Edge From="149" To="156" Label="Source2" />
-      <Edge From="150" To="156" Label="Source3" />
-      <Edge From="151" To="156" Label="Source4" />
-      <Edge From="152" To="156" Label="Source5" />
-      <Edge From="153" To="156" Label="Source6" />
-      <Edge From="154" To="156" Label="Source7" />
-      <Edge From="155" To="156" Label="Source8" />
+      <Edge From="148" To="149" Label="Source1" />
+      <Edge From="150" To="151" Label="Source1" />
+      <Edge From="151" To="152" Label="Source1" />
+      <Edge From="153" To="154" Label="Source1" />
+      <Edge From="154" To="155" Label="Source1" />
       <Edge From="156" To="157" Label="Source1" />
       <Edge From="157" To="158" Label="Source1" />
+      <Edge From="159" To="160" Label="Source1" />
+      <Edge From="160" To="161" Label="Source1" />
+      <Edge From="162" To="163" Label="Source1" />
+      <Edge From="163" To="171" Label="Source1" />
+      <Edge From="164" To="171" Label="Source2" />
+      <Edge From="165" To="171" Label="Source3" />
+      <Edge From="166" To="171" Label="Source4" />
+      <Edge From="167" To="171" Label="Source5" />
+      <Edge From="168" To="171" Label="Source6" />
+      <Edge From="169" To="171" Label="Source7" />
+      <Edge From="170" To="171" Label="Source8" />
+      <Edge From="171" To="172" Label="Source1" />
+      <Edge From="172" To="173" Label="Source1" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>
