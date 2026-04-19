@@ -309,8 +309,8 @@ def process(value):
     global reward_window_start_time, failed_trial_count
 
     current_time = time.time()
-    reward_duration_left  = 0.066
-    reward_duration_right = 0.078
+    reward_duration_left  = 0.068
+    reward_duration_right = 0.079
     click_duration        = 0.1
     iti_duration_min      = 1.0
     iti_duration_max      = 5.0
@@ -324,10 +324,13 @@ def process(value):
     poke_left  = bool(value[1][0])
     poke_right = bool(value[1][1])
     nRewards = reward_left_count + reward_right_count
+    target_radius = float(value[1][2])
     if n_tiles_per_side == 1:
-        target_radius = max(100, 350 - (nRewards * 4))
-    else:
-        target_radius = float(value[1][2])
+        target_radius = max(150.0, 350.0 - (nRewards * 4))
+    elif 1:
+        target_radius = max(150.0, 300.0 - (nRewards * 4))
+    
+        
 
     # ------------------------------------------------------------------
     # Grid / canvas cache: rebuild only when image dimensions change.
