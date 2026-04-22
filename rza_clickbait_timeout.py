@@ -244,9 +244,9 @@ def generate_targets(n_tiles_per_side, max_targets_per_cell=5, shuffle=True):
 # Module-level state
 # ---------------------------------------------------------------------------
 
-n_tiles_per_side = 1
+n_tiles_per_side = 8
 max_targets_per_cell = 100
-scale_factor = 0.75
+scale_factor = 0.5
 
 _, target_queue, target_distribution, active_target = generate_targets(n_tiles_per_side, max_targets_per_cell)
 
@@ -309,8 +309,8 @@ def process(value):
     global reward_window_start_time, failed_trial_count
 
     current_time = time.time()
-    reward_duration_left  = 0.068
-    reward_duration_right = 0.079
+    reward_duration_left  = 0.063
+    reward_duration_right = 0.080
     click_duration        = 0.1
     iti_duration_min      = 1.0
     iti_duration_max      = 5.0
@@ -328,7 +328,8 @@ def process(value):
     if n_tiles_per_side == 1:
         target_radius = max(150.0, 350.0 - (nRewards * 4))
     elif 1:
-        target_radius = max(150.0, 300.0 - (nRewards * 4))
+        # target_radius = max(target_radius, 250.0 - (nRewards * 3))
+        target_radius = max(150.0, 250.0 - (nRewards * 3))
     
         
 

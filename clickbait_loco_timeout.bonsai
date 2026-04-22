@@ -75,7 +75,7 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="ffmpeg:VideoWriter">
-          <ffmpeg:FileName>E:\data\clickbait-loco\thermister\2208\t7\04182026_2208_t7.avi</ffmpeg:FileName>
+          <ffmpeg:FileName>E:\data\clickbait-loco\thermister\2210\p2\04202026_2210_p2.avi</ffmpeg:FileName>
           <ffmpeg:Suffix>None</ffmpeg:Suffix>
           <ffmpeg:Overwrite>false</ffmpeg:Overwrite>
           <ffmpeg:FrameRate>30</ffmpeg:FrameRate>
@@ -97,7 +97,7 @@
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-loco\thermister\2208\t7\04182026_2208_t7_video_timestamp.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\thermister\2210\p2\04202026_2210_p2_video_timestamp.csv</io:FileName>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>None</io:Suffix>
@@ -272,7 +272,7 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="cv:Threshold">
-          <cv:ThresholdValue>68</cv:ThresholdValue>
+          <cv:ThresholdValue>65</cv:ThresholdValue>
           <cv:MaxValue>255</cv:MaxValue>
           <cv:ThresholdType>Binary</cv:ThresholdType>
         </Combinator>
@@ -609,9 +609,9 @@ def generate_targets(n_tiles_per_side, max_targets_per_cell=5, shuffle=True):
 # Module-level state
 # ---------------------------------------------------------------------------
 
-n_tiles_per_side = 1
+n_tiles_per_side = 8
 max_targets_per_cell = 100
-scale_factor = 0.75
+scale_factor = 0.5
 
 _, target_queue, target_distribution, active_target = generate_targets(n_tiles_per_side, max_targets_per_cell)
 
@@ -674,8 +674,8 @@ def process(value):
     global reward_window_start_time, failed_trial_count
 
     current_time = time.time()
-    reward_duration_left  = 0.068
-    reward_duration_right = 0.079
+    reward_duration_left  = 0.063
+    reward_duration_right = 0.080
     click_duration        = 0.1
     iti_duration_min      = 1.0
     iti_duration_max      = 5.0
@@ -693,7 +693,8 @@ def process(value):
     if n_tiles_per_side == 1:
         target_radius = max(150.0, 350.0 - (nRewards * 4))
     elif 1:
-        target_radius = max(150.0, 300.0 - (nRewards * 4))
+        # target_radius = max(target_radius, 250.0 - (nRewards * 3))
+        target_radius = max(150.0, 250.0 - (nRewards * 3))
     
         
 
@@ -1003,7 +1004,7 @@ it.Item6 as targetRadius
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-loco\thermister\2208\t7\04182026_2208_t7_eventsA.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\thermister\2210\p2\04202026_2210_p2_eventsA.csv</io:FileName>
         <io:Delimiter>,</io:Delimiter>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
@@ -1105,7 +1106,7 @@ def process(value):
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="io:WriteAllText">
-          <io:Path>E:\data\clickbait-loco\thermister\2208\t7\04182026_2208_t7_trialcounts.txt</io:Path>
+          <io:Path>E:\data\clickbait-loco\thermister\2210\p2\04202026_2210_p2_trialcounts.txt</io:Path>
           <io:Overwrite>true</io:Overwrite>
           <io:Append>false</io:Append>
         </Combinator>
@@ -1139,7 +1140,7 @@ it.Item5 as clickState
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-loco\thermister\2208\t7\04182026_2208_t7_eventsB.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\thermister\2210\p2\04202026_2210_p2_eventsB.csv</io:FileName>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>None</io:Suffix>
@@ -1180,7 +1181,7 @@ it.Item2 as interval_ms
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-loco\thermister\2208\t7\04182026_2208_t7_raw_video_timestamp.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\thermister\2210\p2\04202026_2210_p2_raw_video_timestamp.csv</io:FileName>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>None</io:Suffix>
@@ -1210,12 +1211,12 @@ it.Item2 as interval_ms
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="cv:AffineTransform">
           <cv:Pivot>
-            <cv:X>459.420624</cv:X>
-            <cv:Y>201.580215</cv:Y>
+            <cv:X>1145.39417</cv:X>
+            <cv:Y>599.2371</cv:Y>
           </cv:Pivot>
           <cv:Translation>
-            <cv:X>-209.420624</cv:X>
-            <cv:Y>48.4197845</cv:Y>
+            <cv:X>-895.394165</cv:X>
+            <cv:Y>-349.237122</cv:Y>
           </cv:Translation>
           <cv:Rotation>0</cv:Rotation>
           <cv:Scale>
@@ -1236,7 +1237,7 @@ it.Item2 as interval_ms
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="cv:WarpAffine">
-          <cv:Transform>1,0,-207.3552;0,1,47.91798</cv:Transform>
+          <cv:Transform>1,0,-895.4567;0,1,-349.3042</cv:Transform>
           <cv:Flags>Linear</cv:Flags>
           <cv:FillValue>
             <cv:Val0>0</cv:Val0>
@@ -1266,7 +1267,7 @@ it.Item2 as interval_ms
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="ffmpeg:VideoWriter">
-          <ffmpeg:FileName>E:\data\clickbait-loco\thermister\2208\t7\04182026_2208_t7_raw.avi</ffmpeg:FileName>
+          <ffmpeg:FileName>E:\data\clickbait-loco\thermister\2210\p2\04202026_2210_p2_raw.avi</ffmpeg:FileName>
           <ffmpeg:Suffix>None</ffmpeg:Suffix>
           <ffmpeg:Overwrite>false</ffmpeg:Overwrite>
           <ffmpeg:FrameRate>210</ffmpeg:FrameRate>
@@ -1449,8 +1450,8 @@ it.Item2 as interval_ms
         <ipy:Script>import math
 
 
-radiusTarget = 150.0
-minTargetRadius = 150.0
+radiusTarget = 100.0
+minTargetRadius = 100.0
 dur = 1.0/30.0
 
 @returns(tuple)
@@ -1475,10 +1476,11 @@ def process(value):
     # else: 
     #     targetRadius = minTargetRadius
 
-    if v &gt; 300:
+    if v &gt; 300 and abs(headingAngle)&gt;1:
         if radiusTarget &lt; 500:
-            radiusTarget += 10*dur*(v/300)
+            radiusTarget += 15*dur*(abs(headingAngle))
     else:
+        # radiusTarget = max(minTargetRadius, radiusTarget - 10*dur*(1-(v/300)))
         radiusTarget = minTargetRadius
     return (radiusTarget,angVel,v,orbitalRadius,headingAngle)
 </ipy:Script>
@@ -1561,7 +1563,7 @@ it.Item6 as headingAngle
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-loco\thermister\2208\t7\04182026_2208_t7_kinematicsA.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\thermister\2210\p2\04202026_2210_p2_kinematicsA.csv</io:FileName>
         <io:Delimiter>,</io:Delimiter>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
@@ -2223,7 +2225,7 @@ def generate():
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="StringProperty">
-          <Value>04182026</Value>
+          <Value>04202026</Value>
         </Combinator>
       </Expression>
       <Expression xsi:type="rx:ReplaySubject">
@@ -2235,7 +2237,7 @@ def generate():
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="FloatProperty">
-          <Value>45</Value>
+          <Value>30</Value>
         </Combinator>
       </Expression>
       <Expression xsi:type="rx:ReplaySubject">
@@ -2247,7 +2249,7 @@ def generate():
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="StringProperty">
-          <Value>2208</Value>
+          <Value>2210</Value>
         </Combinator>
       </Expression>
       <Expression xsi:type="rx:ReplaySubject">
@@ -2259,7 +2261,7 @@ def generate():
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="StringProperty">
-          <Value>t7</Value>
+          <Value>p2</Value>
         </Combinator>
       </Expression>
       <Expression xsi:type="rx:ReplaySubject">

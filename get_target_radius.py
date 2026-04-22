@@ -27,9 +27,10 @@ def process(value):
     # else: 
     #     targetRadius = minTargetRadius
 
-    if v > 300:
+    if v > 300 and abs(headingAngle)>1:
         if radiusTarget < 500:
-            radiusTarget += 10*dur*(v/300)
+            radiusTarget += 15*dur*(abs(headingAngle))
     else:
-        radiusTarget = max(minTargetRadius, radiusTarget - 10*dur*(1-(v/300)))
+        # radiusTarget = max(minTargetRadius, radiusTarget - 10*dur*(1-(v/300)))
+        radiusTarget = minTargetRadius
     return (radiusTarget,angVel,v,orbitalRadius,headingAngle)
