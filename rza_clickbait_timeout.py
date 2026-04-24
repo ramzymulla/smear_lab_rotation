@@ -309,8 +309,8 @@ def process(value):
     global reward_window_start_time, failed_trial_count
 
     current_time = time.time()
-    reward_duration_left  = 0.061
-    reward_duration_right = 0.067
+    reward_duration_left  = 0.065
+    reward_duration_right = 0.075
     click_duration        = 0.1
     iti_duration_min      = 1.0
     iti_duration_max      = 5.0
@@ -329,7 +329,7 @@ def process(value):
         target_radius = max(100.0, 250.0 - (nRewards * 3))
     elif 1:
         # target_radius = max(target_radius, 250.0 - (nRewards * 3))
-        target_radius = max(100.0, 200.0 - (nRewards * 3))
+        target_radius = max(150.0, 200.0 - (nRewards * 2))
     
         
 
