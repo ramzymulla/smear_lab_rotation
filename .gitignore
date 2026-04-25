@@ -9,7 +9,7 @@ logs/
 .vscode/
 *~
 .bonsai
-
+tmp/
 
 
 # C extensions
