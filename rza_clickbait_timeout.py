@@ -18,12 +18,14 @@ class GridMaze:
     def __init__(self, maze_bounds, n_tiles_per_side, scale_factor):
         self.bounds = maze_bounds
         self.radius = n_tiles_per_side
+        self.scale = scale_factor
         self.cells = []
 
         N = n_tiles_per_side
         w_ratio = maze_bounds[0] / (math.sqrt(3) * (2 * N + 1)) if N > 0 else maze_bounds[0]
         h_ratio = maze_bounds[1] / (1.5 * 2 * N + 2) if N > 0 else maze_bounds[1]
         self.size = min(w_ratio, h_ratio) * scale_factor
+        print(self.size)
 
         self.center_x = maze_bounds[0] / 2.0
         self.center_y = maze_bounds[1] / 2.0
@@ -178,6 +180,8 @@ def get_grid_location_fast(grid, centroid_x, centroid_y, active_target, img, tar
         ty = target_cell['center_y']
 
         dist = math.sqrt((centroid_x - tx) ** 2 + (centroid_y - ty) ** 2)
+        distFromCenter = math.sqrt((centroid_x - grid.center_x) ** 2 + (centroid_y - grid.center_y) ** 2)
+        
 
         CV.Circle(img, Point(int(tx), int(ty)), int(target_radius), threshold_color, thickness=4)
         CV.Line(img, Point(int(tx), int(ty)), Point(int(centroid_x), int(centroid_y)), distance_line_color, thickness=3)
@@ -309,8 +313,8 @@ def process(value):
     global reward_window_start_time, failed_trial_count
 
     current_time = time.time()
-    reward_duration_left  = 0.065
-    reward_duration_right = 0.075
+    reward_duration_left  = 0.061
+    reward_duration_right = 0.071
     click_duration        = 0.1
     iti_duration_min      = 1.0
     iti_duration_max      = 5.0
@@ -329,9 +333,10 @@ def process(value):
         target_radius = max(100.0, 250.0 - (nRewards * 3))
     elif 1:
         # target_radius = max(target_radius, 250.0 - (nRewards * 3))
-        target_radius = max(150.0, 200.0 - (nRewards * 2))
+        target_radius = max(target_radius, 200.0 - (nRewards * 3))
     
         
+
 
     # ------------------------------------------------------------------
     # Grid / canvas cache: rebuild only when image dimensions change.

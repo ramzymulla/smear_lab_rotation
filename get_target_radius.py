@@ -1,8 +1,9 @@
 import math
 
 
-radiusTarget = 100.0
+
 minTargetRadius = 100.0
+radiusTarget = minTargetRadius
 dt = 1.0/30.0
 
 @returns(tuple)
@@ -13,7 +14,7 @@ def process(value):
     
     # print(value[0])
     # print(value[1])
-    da,dx,dy = value.Item1,value.Item2,value.Item3
+    da,dx,dy,dt = value.Item1,value.Item2,value.Item3,float(value.Item4)/1000
 
 
     
@@ -31,12 +32,13 @@ def process(value):
     # else: 
     #     targetRadius = minTargetRadius
 
-    thresh = 1
-    metric = headingAngle
-    if v > 300 and abs(metric)>thresh:
+    threshrange = [2,6]
+    metric = angVel
+    
+    if v > 100 and abs(metric)>threshrange[0] and abs(metric) < threshrange[1]:
         if radiusTarget < 500:
-            radiusTarget += 15*dt*(abs(metric)/thresh)
+            radiusTarget += 100*dt
     else:
         # radiusTarget = max(minTargetRadius, radiusTarget - 10*dur*(1-(v/300)))
-        radiusTarget = minTargetRadius
+        radiusTarget = max(minTargetRadius, radiusTarget-50*dt)
     return (radiusTarget,angVel,v,orbitalRadius,headingAngle)
