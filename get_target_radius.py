@@ -14,9 +14,9 @@ def process(value):
     
     # print(value[0])
     # print(value[1])
-    da,dx,dy,dt = value.Item1,value.Item2,value.Item3,float(value.Item4)/1000
-
-
+    da,dx,dy,dt = value[0].Item1,value[0].Item2,value[0].Item3,float(value[0].Item4)/1000
+    pokeLeft,pokeRight = bool(value[1][0]),bool(value[1][1])
+    
     
 
     headingAngle = math.atan2(dy, dx)
@@ -42,6 +42,8 @@ def process(value):
     if v > vThresh and abs(metric)>threshrange[0]:
         if radiusTarget < maxRadius:
             radiusTarget += growthRate*dt
+    elif pokeLeft or pokeRight:
+        radiusTarget = minTargetRadius
     else:
         # radiusTarget = max(minTargetRadius, radiusTarget - 10*dur*(1-(v/300)))
         radiusTarget = min(max(minTargetRadius, radiusTarget-shrinkRate*dt),maxRadius)

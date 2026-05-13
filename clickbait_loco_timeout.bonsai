@@ -3,6 +3,7 @@
                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                  xmlns:ard="clr-namespace:Bonsai.Arduino;assembly=Bonsai.Arduino"
                  xmlns:rx="clr-namespace:Bonsai.Reactive;assembly=Bonsai.Core"
+                 xmlns:spk="clr-namespace:Bonsai.Spinnaker;assembly=Bonsai.Spinnaker"
                  xmlns:cv="clr-namespace:Bonsai.Vision;assembly=Bonsai.Vision"
                  xmlns:ffmpeg="clr-namespace:Bonsai.FFmpeg;assembly=Bonsai.FFmpeg"
                  xmlns:io="clr-namespace:Bonsai.IO;assembly=Bonsai.System"
@@ -33,35 +34,26 @@
         <Name>RenderStim</Name>
       </Expression>
       <Expression xsi:type="Combinator">
-        <Combinator xsi:type="cv:FileCapture">
-          <cv:FileName>E:\data\clickbait-loco\thermister\2208\a12\05132026_2208_a12.avi</cv:FileName>
-          <cv:PlaybackRate>0</cv:PlaybackRate>
-          <cv:StartPosition>0</cv:StartPosition>
-          <cv:PositionUnits>Frames</cv:PositionUnits>
-          <cv:Loop>false</cv:Loop>
-          <cv:Playing>true</cv:Playing>
+        <Combinator xsi:type="spk:SpinnakerCapture">
+          <spk:Index xsi:nil="true" />
+          <spk:SerialNumber>20226988</spk:SerialNumber>
+          <spk:ColorProcessing>Default</spk:ColorProcessing>
         </Combinator>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="MemberSelector">
-          <Selector>Image</Selector>
-        </Builder>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Image</Selector>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="rx:Slice">
-            <rx:Start>0</rx:Start>
-            <rx:Step>7</rx:Step>
-            <rx:Stop xsi:nil="true" />
-          </Combinator>
-        </Builder>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Slice">
+          <rx:Start>0</rx:Start>
+          <rx:Step>7</rx:Step>
+          <rx:Stop xsi:nil="true" />
+        </Combinator>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="cv:Flip">
-            <cv:Mode>Vertical</cv:Mode>
-          </Combinator>
-        </Builder>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="cv:Flip">
+          <cv:Mode>Vertical</cv:Mode>
+        </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="cv:Grayscale" />
@@ -81,7 +73,7 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="ffmpeg:VideoWriter">
-          <ffmpeg:FileName>E:\data\clickbait-loco\test\2208\a15\05132026_2208_a15.avi</ffmpeg:FileName>
+          <ffmpeg:FileName>E:\data\clickbait-loco\test\2208\a13\05132026_2208_a13.avi</ffmpeg:FileName>
           <ffmpeg:Suffix>None</ffmpeg:Suffix>
           <ffmpeg:Overwrite>false</ffmpeg:Overwrite>
           <ffmpeg:FrameRate>30</ffmpeg:FrameRate>
@@ -103,7 +95,7 @@
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-loco\test\2208\a15\05132026_2208_a15_video_timestamp.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\test\2208\a13\05132026_2208_a13_video_timestamp.csv</io:FileName>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>None</io:Suffix>
@@ -1017,7 +1009,7 @@ it.Item6 as targetRadius
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-loco\test\2208\a15\05132026_2208_a15_eventsA.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\test\2208\a13\05132026_2208_a13_eventsA.csv</io:FileName>
         <io:Delimiter>,</io:Delimiter>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
@@ -1125,7 +1117,7 @@ def process(value):
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="io:WriteAllText">
-          <io:Path>E:\data\clickbait-loco\test\2208\a15\05132026_2208_a15_trialcounts.txt</io:Path>
+          <io:Path>E:\data\clickbait-loco\test\2208\a13\05132026_2208_a13_trialcounts.txt</io:Path>
           <io:Overwrite>true</io:Overwrite>
           <io:Append>false</io:Append>
         </Combinator>
@@ -1159,7 +1151,7 @@ it.Item5 as clickState
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-loco\test\2208\a15\05132026_2208_a15_eventsB.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\test\2208\a13\05132026_2208_a13_eventsB.csv</io:FileName>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>None</io:Suffix>
@@ -1200,7 +1192,7 @@ it.Item2 as interval_ms
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-loco\test\2208\a15\05132026_2208_a15_raw_video_timestamp.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\test\2208\a13\05132026_2208_a13_raw_video_timestamp.csv</io:FileName>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>None</io:Suffix>
@@ -1230,12 +1222,12 @@ it.Item2 as interval_ms
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="cv:AffineTransform">
           <cv:Pivot>
-            <cv:X>321.349182</cv:X>
-            <cv:Y>328.277344</cv:Y>
+            <cv:X>769.8807</cv:X>
+            <cv:Y>583.4095</cv:Y>
           </cv:Pivot>
           <cv:Translation>
-            <cv:X>-96.34918</cv:X>
-            <cv:Y>-78.27734</cv:Y>
+            <cv:X>-544.8807</cv:X>
+            <cv:Y>-333.4095</cv:Y>
           </cv:Translation>
           <cv:Rotation>0</cv:Rotation>
           <cv:Scale>
@@ -1256,7 +1248,7 @@ it.Item2 as interval_ms
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="cv:WarpAffine">
-          <cv:Transform>1,0,-118.2386;0,1,-116.5661</cv:Transform>
+          <cv:Transform>1,0,-541.39;0,1,-300.0433</cv:Transform>
           <cv:Flags>Linear</cv:Flags>
           <cv:FillValue>
             <cv:Val0>0</cv:Val0>
@@ -1286,7 +1278,7 @@ it.Item2 as interval_ms
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="ffmpeg:VideoWriter">
-          <ffmpeg:FileName>E:\data\clickbait-loco\test\2208\a15\05132026_2208_a15_raw.avi</ffmpeg:FileName>
+          <ffmpeg:FileName>E:\data\clickbait-loco\test\2208\a13\05132026_2208_a13_raw.avi</ffmpeg:FileName>
           <ffmpeg:Suffix>None</ffmpeg:Suffix>
           <ffmpeg:Overwrite>false</ffmpeg:Overwrite>
           <ffmpeg:FrameRate>210</ffmpeg:FrameRate>
@@ -1458,6 +1450,12 @@ it.Item2 as interval_ms
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:Zip" />
       </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:CombineLatest" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:WithLatestFrom" />
+      </Expression>
       <Expression xsi:type="Disable">
         <Builder xsi:type="Combinator">
           <Combinator xsi:type="rx:Skip">
@@ -1488,9 +1486,9 @@ def process(value):
     
     # print(value[0])
     # print(value[1])
-    da,dx,dy,dt = value.Item1,value.Item2,value.Item3,float(value.Item4)/1000
-
-
+    da,dx,dy,dt = value[0].Item1,value[0].Item2,value[0].Item3,float(value[0].Item4)/1000
+    pokeLeft,pokeRight = bool(value[1][0]),bool(value[1][1])
+    
     
 
     headingAngle = math.atan2(dy, dx)
@@ -1516,6 +1514,8 @@ def process(value):
     if v &gt; vThresh and abs(metric)&gt;threshrange[0]:
         if radiusTarget &lt; maxRadius:
             radiusTarget += growthRate*dt
+    elif pokeLeft or pokeRight:
+        radiusTarget = minTargetRadius
     else:
         # radiusTarget = max(minTargetRadius, radiusTarget - 10*dur*(1-(v/300)))
         radiusTarget = min(max(minTargetRadius, radiusTarget-shrinkRate*dt),maxRadius)
@@ -1600,7 +1600,7 @@ it.Item6 as headingAngle
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-loco\test\2208\a15\05132026_2208_a15_kinematicsA.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\test\2208\a13\05132026_2208_a13_kinematicsA.csv</io:FileName>
         <io:Delimiter>,</io:Delimiter>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
@@ -2409,9 +2409,11 @@ def generate():
       <Edge From="32" To="33" Label="Source1" />
       <Edge From="33" To="34" Label="Source1" />
       <Edge From="34" To="39" Label="Source1" />
+      <Edge From="34" To="126" Label="Source2" />
       <Edge From="35" To="36" Label="Source1" />
       <Edge From="36" To="37" Label="Source1" />
       <Edge From="37" To="39" Label="Source2" />
+      <Edge From="37" To="126" Label="Source1" />
       <Edge From="38" To="39" Label="Source3" />
       <Edge From="39" To="40" Label="Source2" />
       <Edge From="40" To="41" Label="Source1" />
@@ -2429,7 +2431,7 @@ def generate():
       <Edge From="41" To="71" Label="Source1" />
       <Edge From="41" To="72" Label="Source1" />
       <Edge From="41" To="78" Label="Source1" />
-      <Edge From="41" To="133" Label="Source1" />
+      <Edge From="41" To="135" Label="Source1" />
       <Edge From="42" To="43" Label="Source3" />
       <Edge From="42" To="65" Label="Source1" />
       <Edge From="42" To="66" Label="Source1" />
@@ -2509,50 +2511,52 @@ def generate():
       <Edge From="122" To="125" Label="Source3" />
       <Edge From="123" To="124" Label="Source1" />
       <Edge From="124" To="125" Label="Source4" />
-      <Edge From="125" To="126" Label="Source1" />
-      <Edge From="126" To="127" Label="Source1" />
+      <Edge From="125" To="127" Label="Source1" />
+      <Edge From="126" To="127" Label="Source2" />
       <Edge From="127" To="128" Label="Source1" />
       <Edge From="128" To="129" Label="Source1" />
-      <Edge From="128" To="131" Label="Source1" />
-      <Edge From="128" To="134" Label="Source1" />
-      <Edge From="128" To="135" Label="Source1" />
-      <Edge From="128" To="136" Label="Source1" />
-      <Edge From="128" To="137" Label="Source1" />
       <Edge From="129" To="130" Label="Source1" />
+      <Edge From="130" To="131" Label="Source1" />
+      <Edge From="130" To="133" Label="Source1" />
+      <Edge From="130" To="136" Label="Source1" />
+      <Edge From="130" To="137" Label="Source1" />
+      <Edge From="130" To="138" Label="Source1" />
+      <Edge From="130" To="139" Label="Source1" />
       <Edge From="131" To="132" Label="Source1" />
-      <Edge From="132" To="138" Label="Source1" />
-      <Edge From="133" To="138" Label="Source2" />
-      <Edge From="134" To="138" Label="Source3" />
-      <Edge From="135" To="138" Label="Source4" />
-      <Edge From="136" To="138" Label="Source5" />
-      <Edge From="137" To="138" Label="Source6" />
-      <Edge From="138" To="139" Label="Source1" />
-      <Edge From="139" To="142" Label="Source1" />
+      <Edge From="133" To="134" Label="Source1" />
+      <Edge From="134" To="140" Label="Source1" />
+      <Edge From="135" To="140" Label="Source2" />
+      <Edge From="136" To="140" Label="Source3" />
+      <Edge From="137" To="140" Label="Source4" />
+      <Edge From="138" To="140" Label="Source5" />
+      <Edge From="139" To="140" Label="Source6" />
       <Edge From="140" To="141" Label="Source1" />
-      <Edge From="141" To="142" Label="Source2" />
-      <Edge From="144" To="145" Label="Source1" />
-      <Edge From="145" To="146" Label="Source1" />
-      <Edge From="149" To="150" Label="Source1" />
-      <Edge From="150" To="151" Label="Source1" />
+      <Edge From="141" To="144" Label="Source1" />
+      <Edge From="142" To="143" Label="Source1" />
+      <Edge From="143" To="144" Label="Source2" />
+      <Edge From="146" To="147" Label="Source1" />
+      <Edge From="147" To="148" Label="Source1" />
+      <Edge From="151" To="152" Label="Source1" />
       <Edge From="152" To="153" Label="Source1" />
-      <Edge From="153" To="154" Label="Source1" />
+      <Edge From="154" To="155" Label="Source1" />
       <Edge From="155" To="156" Label="Source1" />
-      <Edge From="156" To="157" Label="Source1" />
+      <Edge From="157" To="158" Label="Source1" />
       <Edge From="158" To="159" Label="Source1" />
-      <Edge From="159" To="160" Label="Source1" />
+      <Edge From="160" To="161" Label="Source1" />
       <Edge From="161" To="162" Label="Source1" />
-      <Edge From="162" To="163" Label="Source1" />
+      <Edge From="163" To="164" Label="Source1" />
       <Edge From="164" To="165" Label="Source1" />
-      <Edge From="165" To="173" Label="Source1" />
-      <Edge From="166" To="173" Label="Source2" />
-      <Edge From="167" To="173" Label="Source3" />
-      <Edge From="168" To="173" Label="Source4" />
-      <Edge From="169" To="173" Label="Source5" />
-      <Edge From="170" To="173" Label="Source6" />
-      <Edge From="171" To="173" Label="Source7" />
-      <Edge From="172" To="173" Label="Source8" />
-      <Edge From="173" To="174" Label="Source1" />
-      <Edge From="174" To="175" Label="Source1" />
+      <Edge From="166" To="167" Label="Source1" />
+      <Edge From="167" To="175" Label="Source1" />
+      <Edge From="168" To="175" Label="Source2" />
+      <Edge From="169" To="175" Label="Source3" />
+      <Edge From="170" To="175" Label="Source4" />
+      <Edge From="171" To="175" Label="Source5" />
+      <Edge From="172" To="175" Label="Source6" />
+      <Edge From="173" To="175" Label="Source7" />
+      <Edge From="174" To="175" Label="Source8" />
+      <Edge From="175" To="176" Label="Source1" />
+      <Edge From="176" To="177" Label="Source1" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>
