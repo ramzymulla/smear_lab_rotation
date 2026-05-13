@@ -2,7 +2,7 @@ import math
 
 
 
-minTargetRadius = 100.0
+minTargetRadius = 50.0
 radiusTarget = minTargetRadius
 dt = 1.0/30.0
 
@@ -32,13 +32,17 @@ def process(value):
     # else: 
     #     targetRadius = minTargetRadius
 
-    threshrange = [2,6]
+    threshrange = [2,5]
     metric = angVel
+    growthRate = 200.0
+    maxRadius = 300.0
+    shrinkRate = 100.0*(growthRate/300.0)
+    vThresh = 200.0
     
-    if v > 100 and abs(metric)>threshrange[0] and abs(metric) < threshrange[1]:
-        if radiusTarget < 500:
-            radiusTarget += 100*dt
+    if v > vThresh and abs(metric)>threshrange[0]:
+        if radiusTarget < maxRadius:
+            radiusTarget += growthRate*dt
     else:
         # radiusTarget = max(minTargetRadius, radiusTarget - 10*dur*(1-(v/300)))
-        radiusTarget = max(minTargetRadius, radiusTarget-50*dt)
+        radiusTarget = min(max(minTargetRadius, radiusTarget-shrinkRate*dt),maxRadius)
     return (radiusTarget,angVel,v,orbitalRadius,headingAngle)

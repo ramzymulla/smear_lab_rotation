@@ -20,7 +20,7 @@
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="ard:CreateArduino">
           <ard:Name>Arduino Mega 2560</ard:Name>
-          <ard:PortName>COM3</ard:PortName>
+          <ard:PortName>COM4</ard:PortName>
           <ard:BaudRate>57600</ard:BaudRate>
           <ard:SamplingInterval>19</ard:SamplingInterval>
         </Combinator>
@@ -75,7 +75,7 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="ffmpeg:VideoWriter">
-          <ffmpeg:FileName>E:\data\clickbait-loco\thermister\2210\a3\04292026_2210_a3.avi</ffmpeg:FileName>
+          <ffmpeg:FileName>E:\data\clickbait-loco\thermister\2210\a12\05132026_2210_a12.avi</ffmpeg:FileName>
           <ffmpeg:Suffix>None</ffmpeg:Suffix>
           <ffmpeg:Overwrite>false</ffmpeg:Overwrite>
           <ffmpeg:FrameRate>30</ffmpeg:FrameRate>
@@ -97,7 +97,7 @@
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-loco\thermister\2210\a3\04292026_2210_a3_video_timestamp.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\thermister\2210\a12\05132026_2210_a12_video_timestamp.csv</io:FileName>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>None</io:Suffix>
@@ -327,7 +327,7 @@ def process(value):
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="ard:AnalogInput">
           <ard:PortName>Arduino Mega 2560</ard:PortName>
-          <ard:Pin>0</ard:Pin>
+          <ard:Pin>6</ard:Pin>
         </Combinator>
       </Expression>
       <Expression xsi:type="LessThan">
@@ -341,7 +341,7 @@ def process(value):
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="ard:AnalogInput">
           <ard:PortName>Arduino Mega 2560</ard:PortName>
-          <ard:Pin>1</ard:Pin>
+          <ard:Pin>2</ard:Pin>
         </Combinator>
       </Expression>
       <Expression xsi:type="LessThan">
@@ -678,8 +678,8 @@ def process(value):
     global reward_window_start_time, failed_trial_count
 
     current_time = time.time()
-    reward_duration_left  = 0.061
-    reward_duration_right = 0.071
+    reward_duration_left  = 0.049
+    reward_duration_right = 0.05
     click_duration        = 0.1
     iti_duration_min      = 1.0
     iti_duration_max      = 5.0
@@ -694,11 +694,13 @@ def process(value):
     poke_right = bool(value[1][1])
     nRewards = reward_left_count + reward_right_count
     target_radius = float(value[1][2])
-    if n_tiles_per_side == 1:
+    if nRewards==0:
+        target_radius = 250
+    elif n_tiles_per_side == 1:
         target_radius = max(100.0, 250.0 - (nRewards * 3))
     elif 1:
         # target_radius = max(target_radius, 250.0 - (nRewards * 3))
-        target_radius = max(target_radius, 200.0 - (nRewards * 3))
+        target_radius = max(target_radius, 100.0 - (nRewards * 2))
     
         
 
@@ -1009,7 +1011,7 @@ it.Item6 as targetRadius
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-loco\thermister\2210\a3\04292026_2210_a3_eventsA.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\thermister\2210\a12\05132026_2210_a12_eventsA.csv</io:FileName>
         <io:Delimiter>,</io:Delimiter>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
@@ -1025,23 +1027,29 @@ it.Item6 as targetRadius
 def process(value):
   return value[8]</ipy:Script>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="ard:DigitalOutput">
-          <ard:PortName>Arduino Mega 2560</ard:PortName>
-          <ard:Pin>6</ard:Pin>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="ard:DigitalOutput">
+            <ard:PortName>Arduino Mega 2560</ard:PortName>
+            <ard:Pin>6</ard:Pin>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="ard:DigitalOutput">
-          <ard:PortName>Arduino Mega 2560</ard:PortName>
-          <ard:Pin>5</ard:Pin>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="ard:DigitalOutput">
+            <ard:PortName>Arduino Mega 2560</ard:PortName>
+            <ard:Pin>5</ard:Pin>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="ard:DigitalOutput">
-          <ard:PortName>Arduino Mega 2560</ard:PortName>
-          <ard:Pin>4</ard:Pin>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="ard:DigitalOutput">
+            <ard:PortName>Arduino Mega 2560</ard:PortName>
+            <ard:Pin>4</ard:Pin>
+          </Combinator>
+        </Builder>
       </Expression>
       <Expression xsi:type="ipy:PythonTransform">
         <ipy:Name>Water Left</ipy:Name>
@@ -1054,7 +1062,7 @@ def process(value):
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="ard:DigitalOutput">
           <ard:PortName>Arduino Mega 2560</ard:PortName>
-          <ard:Pin>11</ard:Pin>
+          <ard:Pin>6</ard:Pin>
         </Combinator>
       </Expression>
       <Expression xsi:type="ipy:PythonTransform">
@@ -1068,7 +1076,7 @@ def process(value):
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="ard:DigitalOutput">
           <ard:PortName>Arduino Mega 2560</ard:PortName>
-          <ard:Pin>12</ard:Pin>
+          <ard:Pin>2</ard:Pin>
         </Combinator>
       </Expression>
       <Expression xsi:type="ipy:PythonTransform">
@@ -1111,7 +1119,7 @@ def process(value):
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="io:WriteAllText">
-          <io:Path>E:\data\clickbait-loco\thermister\2210\a3\04292026_2210_a3_trialcounts.txt</io:Path>
+          <io:Path>E:\data\clickbait-loco\thermister\2210\a12\05132026_2210_a12_trialcounts.txt</io:Path>
           <io:Overwrite>true</io:Overwrite>
           <io:Append>false</io:Append>
         </Combinator>
@@ -1145,7 +1153,7 @@ it.Item5 as clickState
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-loco\thermister\2210\a3\04292026_2210_a3_eventsB.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\thermister\2210\a12\05132026_2210_a12_eventsB.csv</io:FileName>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>None</io:Suffix>
@@ -1186,7 +1194,7 @@ it.Item2 as interval_ms
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-loco\thermister\2210\a3\04292026_2210_a3_raw_video_timestamp.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\thermister\2210\a12\05132026_2210_a12_raw_video_timestamp.csv</io:FileName>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>None</io:Suffix>
@@ -1216,12 +1224,12 @@ it.Item2 as interval_ms
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="cv:AffineTransform">
           <cv:Pivot>
-            <cv:X>272.811554</cv:X>
-            <cv:Y>461.128235</cv:Y>
+            <cv:X>443.9917</cv:X>
+            <cv:Y>910.268066</cv:Y>
           </cv:Pivot>
           <cv:Translation>
-            <cv:X>-47.811554</cv:X>
-            <cv:Y>-211.128235</cv:Y>
+            <cv:X>-218.9917</cv:X>
+            <cv:Y>-660.268066</cv:Y>
           </cv:Translation>
           <cv:Rotation>0</cv:Rotation>
           <cv:Scale>
@@ -1242,7 +1250,7 @@ it.Item2 as interval_ms
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="cv:WarpAffine">
-          <cv:Transform>1,0,-47.69452;0,1,-211.0745</cv:Transform>
+          <cv:Transform>1,0,-216.9647;0,1,-662.9301</cv:Transform>
           <cv:Flags>Linear</cv:Flags>
           <cv:FillValue>
             <cv:Val0>0</cv:Val0>
@@ -1272,7 +1280,7 @@ it.Item2 as interval_ms
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="ffmpeg:VideoWriter">
-          <ffmpeg:FileName>E:\data\clickbait-loco\thermister\2210\a3\04292026_2210_a3_raw.avi</ffmpeg:FileName>
+          <ffmpeg:FileName>E:\data\clickbait-loco\thermister\2210\a12\05132026_2210_a12_raw.avi</ffmpeg:FileName>
           <ffmpeg:Suffix>None</ffmpeg:Suffix>
           <ffmpeg:Overwrite>false</ffmpeg:Overwrite>
           <ffmpeg:FrameRate>210</ffmpeg:FrameRate>
@@ -1320,7 +1328,7 @@ it.Item2 as interval_ms
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:WindowCount">
-          <rx:Count>10</rx:Count>
+          <rx:Count>5</rx:Count>
           <rx:Skip>1</rx:Skip>
         </Combinator>
       </Expression>
@@ -1359,7 +1367,7 @@ it.Item2 as interval_ms
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:WindowCount">
-          <rx:Count>10</rx:Count>
+          <rx:Count>5</rx:Count>
           <rx:Skip>1</rx:Skip>
         </Combinator>
       </Expression>
@@ -1398,7 +1406,7 @@ it.Item2 as interval_ms
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:WindowCount">
-          <rx:Count>10</rx:Count>
+          <rx:Count>5</rx:Count>
           <rx:Skip>1</rx:Skip>
         </Combinator>
       </Expression>
@@ -1462,7 +1470,7 @@ it.Item2 as interval_ms
 
 
 
-minTargetRadius = 100.0
+minTargetRadius = 50.0
 radiusTarget = minTargetRadius
 dt = 1.0/30.0
 
@@ -1492,15 +1500,19 @@ def process(value):
     # else: 
     #     targetRadius = minTargetRadius
 
-    threshrange = [2,6]
+    threshrange = [2,5]
     metric = angVel
+    growthRate = 200.0
+    maxRadius = 300.0
+    shrinkRate = 100.0*(growthRate/300.0)
+    vThresh = 200.0
     
-    if v &gt; 100 and abs(metric)&gt;threshrange[0] and abs(metric) &lt; threshrange[1]:
-        if radiusTarget &lt; 500:
-            radiusTarget += 100*dt
+    if v &gt; vThresh and abs(metric)&gt;threshrange[0]:
+        if radiusTarget &lt; maxRadius:
+            radiusTarget += growthRate*dt
     else:
         # radiusTarget = max(minTargetRadius, radiusTarget - 10*dur*(1-(v/300)))
-        radiusTarget = max(minTargetRadius, radiusTarget-50*dt)
+        radiusTarget = min(max(minTargetRadius, radiusTarget-shrinkRate*dt),maxRadius)
     return (radiusTarget,angVel,v,orbitalRadius,headingAngle)
 </ipy:Script>
       </Expression>
@@ -1582,7 +1594,7 @@ it.Item6 as headingAngle
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-loco\thermister\2210\a3\04292026_2210_a3_kinematicsA.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\thermister\2210\a12\05132026_2210_a12_kinematicsA.csv</io:FileName>
         <io:Delimiter>,</io:Delimiter>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
@@ -2244,7 +2256,7 @@ def generate():
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="StringProperty">
-          <Value>04302026</Value>
+          <Value>05132026</Value>
         </Combinator>
       </Expression>
       <Expression xsi:type="rx:ReplaySubject">
@@ -2268,7 +2280,7 @@ def generate():
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="StringProperty">
-          <Value>2210</Value>
+          <Value>2208</Value>
         </Combinator>
       </Expression>
       <Expression xsi:type="rx:ReplaySubject">
@@ -2280,7 +2292,7 @@ def generate():
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="StringProperty">
-          <Value>a3</Value>
+          <Value>a12</Value>
         </Combinator>
       </Expression>
       <Expression xsi:type="rx:ReplaySubject">

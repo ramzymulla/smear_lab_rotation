@@ -313,8 +313,8 @@ def process(value):
     global reward_window_start_time, failed_trial_count
 
     current_time = time.time()
-    reward_duration_left  = 0.061
-    reward_duration_right = 0.071
+    reward_duration_left  = 0.049
+    reward_duration_right = 0.05
     click_duration        = 0.1
     iti_duration_min      = 1.0
     iti_duration_max      = 5.0
@@ -329,11 +329,13 @@ def process(value):
     poke_right = bool(value[1][1])
     nRewards = reward_left_count + reward_right_count
     target_radius = float(value[1][2])
-    if n_tiles_per_side == 1:
+    if nRewards==0:
+        target_radius = 250
+    elif n_tiles_per_side == 1:
         target_radius = max(100.0, 250.0 - (nRewards * 3))
     elif 1:
         # target_radius = max(target_radius, 250.0 - (nRewards * 3))
-        target_radius = max(target_radius, 200.0 - (nRewards * 3))
+        target_radius = max(target_radius, 100.0 - (nRewards * 2))
     
         
 
