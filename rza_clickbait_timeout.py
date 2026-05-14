@@ -333,7 +333,7 @@ def process(value):
         target_radius = 250
     elif n_tiles_per_side == 1:
         target_radius = max(100.0, 250.0 - (nRewards * 3))
-    elif 1:
+    elif 0:
         # target_radius = max(target_radius, 250.0 - (nRewards * 3))
         target_radius = max(target_radius, 100.0 - (nRewards * 2))
     

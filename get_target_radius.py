@@ -34,9 +34,9 @@ def process(value):
 
     threshrange = [2,5]
     metric = angVel
-    growthRate = 200.0
+    growthRate = 150.0
     maxRadius = 300.0
-    shrinkRate = 100.0*(growthRate/300.0)
+    shrinkRate = 75
     vThresh = 200.0
     
     if v > vThresh and abs(metric)>threshrange[0]:
