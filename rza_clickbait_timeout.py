@@ -260,6 +260,7 @@ reward_right_count = 0
 reward_state = False
 click = False
 click_start_time = 0
+last_click_time = 0
 drinking = False
 reward_left = False
 reward_right = False
@@ -301,7 +302,7 @@ black = Scalar.All(0)
 def process(value):
     global trial_count, reward_left_count, reward_right_count
     global target_queue, active_target, target_distribution
-    global reward_state, click, click_start_time
+    global reward_state, click, click_start_time, last_click_time
     global drinking, reward_left, reward_right
     global reward_left_start_time, reward_right_start_time
     global iti_start_time, iti_duration, in_iti
@@ -322,6 +323,8 @@ def process(value):
 
     target_found_this_frame = False
 
+    time_since_last_click = current_time - click_start_time
+
     centroid_x, centroid_y, image = (
         value[0].Item1, value[0].Item2, value[0].Item3
     )
@@ -336,8 +339,9 @@ def process(value):
     elif 0:
         # target_radius = max(target_radius, 250.0 - (nRewards * 3))
         target_radius = max(target_radius, 100.0 - (nRewards * 2))
-    elif 1 and target_radius < 300:
+    elif 1 and target_radius < 300 and time_since_last_click < 2*60.0:
         target_radius = 1
+
     
         
 

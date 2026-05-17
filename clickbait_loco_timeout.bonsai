@@ -80,7 +80,7 @@
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-loco\thermister\2210\a15\05162026_2210_a15_video_timestamp.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\thermister\2208\a16\05172026_2208_a16_video_timestamp.csv</io:FileName>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>None</io:Suffix>
@@ -996,7 +996,7 @@ it.Item6 as targetRadius
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-loco\thermister\2210\a15\05162026_2210_a15_eventsA.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\thermister\2208\a16\05172026_2208_a16_eventsA.csv</io:FileName>
         <io:Delimiter>,</io:Delimiter>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
@@ -1104,7 +1104,7 @@ def process(value):
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="io:WriteAllText">
-          <io:Path>E:\data\clickbait-loco\thermister\2210\a15\05162026_2210_a15_trialcounts.txt</io:Path>
+          <io:Path>E:\data\clickbait-loco\thermister\2208\a16\05172026_2208_a16_trialcounts.txt</io:Path>
           <io:Overwrite>true</io:Overwrite>
           <io:Append>false</io:Append>
         </Combinator>
@@ -1138,7 +1138,7 @@ it.Item5 as clickState
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-loco\thermister\2210\a15\05162026_2210_a15_eventsB.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\thermister\2208\a16\05172026_2208_a16_eventsB.csv</io:FileName>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>None</io:Suffix>
@@ -1179,7 +1179,7 @@ it.Item2 as interval_ms
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-loco\thermister\2210\a15\05162026_2210_a15_raw_video_timestamp.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\thermister\2208\a16\05172026_2208_a16_raw_video_timestamp.csv</io:FileName>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>None</io:Suffix>
@@ -1209,12 +1209,12 @@ it.Item2 as interval_ms
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="cv:AffineTransform">
           <cv:Pivot>
-            <cv:X>480.635284</cv:X>
-            <cv:Y>963.3826</cv:Y>
+            <cv:X>1218.4375</cv:X>
+            <cv:Y>539.9024</cv:Y>
           </cv:Pivot>
           <cv:Translation>
-            <cv:X>-255.635284</cv:X>
-            <cv:Y>-713.3826</cv:Y>
+            <cv:X>-993.4375</cv:X>
+            <cv:Y>-289.9024</cv:Y>
           </cv:Translation>
           <cv:Rotation>0</cv:Rotation>
           <cv:Scale>
@@ -1235,7 +1235,7 @@ it.Item2 as interval_ms
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="cv:WarpAffine">
-          <cv:Transform>1,0,-255.2242;0,1,-713.5634</cv:Transform>
+          <cv:Transform>1,0,-993.8229;0,1,-290.7523</cv:Transform>
           <cv:Flags>Linear</cv:Flags>
           <cv:FillValue>
             <cv:Val0>0</cv:Val0>
@@ -1265,7 +1265,7 @@ it.Item2 as interval_ms
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="ffmpeg:VideoWriter">
-          <ffmpeg:FileName>E:\data\clickbait-loco\thermister\2210\a15\05162026_2210_a15_raw.avi</ffmpeg:FileName>
+          <ffmpeg:FileName>E:\data\clickbait-loco\thermister\2208\a16\05172026_2208_a16_raw.avi</ffmpeg:FileName>
           <ffmpeg:Suffix>None</ffmpeg:Suffix>
           <ffmpeg:Overwrite>false</ffmpeg:Overwrite>
           <ffmpeg:FrameRate>210</ffmpeg:FrameRate>
@@ -1587,7 +1587,7 @@ it.Item6 as headingAngle
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-loco\thermister\2210\a15\05162026_2210_a15_kinematicsA.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\thermister\2208\a16\05172026_2208_a16_kinematicsA.csv</io:FileName>
         <io:Delimiter>,</io:Delimiter>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
@@ -1605,7 +1605,7 @@ it.Item6 as headingAngle
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="ffmpeg:VideoWriter">
-          <ffmpeg:FileName>E:\data\clickbait-loco\thermister\2210\a15\05162026_2210_a15.avi</ffmpeg:FileName>
+          <ffmpeg:FileName>E:\data\clickbait-loco\thermister\2208\a16\05172026_2208_a16.avi</ffmpeg:FileName>
           <ffmpeg:Suffix>None</ffmpeg:Suffix>
           <ffmpeg:Overwrite>false</ffmpeg:Overwrite>
           <ffmpeg:FrameRate>30</ffmpeg:FrameRate>
@@ -2266,7 +2266,7 @@ def generate():
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="StringProperty">
-          <Value>05162026</Value>
+          <Value>05172026</Value>
         </Combinator>
       </Expression>
       <Expression xsi:type="rx:ReplaySubject">
@@ -2278,7 +2278,7 @@ def generate():
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="FloatProperty">
-          <Value>45</Value>
+          <Value>30</Value>
         </Combinator>
       </Expression>
       <Expression xsi:type="rx:ReplaySubject">
@@ -2290,7 +2290,7 @@ def generate():
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="StringProperty">
-          <Value>2210</Value>
+          <Value>2208</Value>
         </Combinator>
       </Expression>
       <Expression xsi:type="rx:ReplaySubject">
@@ -2302,7 +2302,7 @@ def generate():
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="StringProperty">
-          <Value>a15</Value>
+          <Value>a16</Value>
         </Combinator>
       </Expression>
       <Expression xsi:type="rx:ReplaySubject">
