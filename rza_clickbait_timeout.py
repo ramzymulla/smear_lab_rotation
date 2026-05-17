@@ -336,6 +336,8 @@ def process(value):
     elif 0:
         # target_radius = max(target_radius, 250.0 - (nRewards * 3))
         target_radius = max(target_radius, 100.0 - (nRewards * 2))
+    elif 1 and target_radius < 300:
+        target_radius = 1
     
         
 
