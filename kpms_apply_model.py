@@ -17,7 +17,7 @@ includeStr = sys.argv[3].split('/')[-1]
 project_dir = str(Path(f"/home/rza/Research/smearlab/scripts/kpms_outputs/rslds_keypoint_moseq_30/"))
 config = lambda: kpms.load_config(project_dir)
 base_path_str = "/home/rza/Research/smearlab/clickbait-loco/thermister/"
-model_name = '2026_05_28-15_52_46'
+model_name = '2026_05_29-13_'
 sleap_files = [str(i) for i in list(Path(sleap_dir).glob(includeStr.replace('.avi','.slp')))]
 print(sleap_files)
 sleap_file = sleap_files[0]  # any .slp or .h5 file with predictions for a single video

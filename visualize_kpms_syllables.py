@@ -475,6 +475,9 @@ def parse_args():
     p.add_argument("--data-dir",
                    default="/Volumes/CrucialRZA/smearlab/clickbait-loco/thermister/",
                    help="Root dir containing .avi and .slp files")
+    p.add_argument("--model-dir",
+                   default="/Volumes/CrucialRZA/smearlab/clickbait-loco/thermister/",
+                   help="Sub-folder under data-dir that contains .slp files")
     p.add_argument("--model-folder",
                    default="labels_v003_0.5scaling",
                    help="Sub-folder under data-dir that contains .slp files")
@@ -503,6 +506,7 @@ def resolve_paths(args):
     session = args.session
     data_dir = Path(args.data_dir)
     kpms_dir = Path(args.kpms_dir)
+    model_dir = Path(args.model_dir)
     model    = args.model_folder
 
     def _glob_one(root, pattern, label):
@@ -515,7 +519,7 @@ def resolve_paths(args):
                 print(f"  {m}")
         return str(matches[0])
 
-    slp_file  = _glob_one(data_dir, f"{model}/**/[0-9]*{subject}_{session}.slp", "SLEAP .slp")
+    slp_file  = _glob_one(model_dir, f"{model}/**/[0-9]*{subject}_{session}.slp", "SLEAP .slp")
     vid_file  = _glob_one(data_dir, f"**/[0-9]*{subject}_{session}.avi",         "video .avi")
     kpms_file = _glob_one(kpms_dir, f"**/[0-9]*{subject}_{session}.csv",         "kpms .csv")
 

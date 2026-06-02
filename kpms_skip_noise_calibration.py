@@ -18,11 +18,11 @@ rslds=True if 'rslds' in sys.argv else False
 if rslds:
     from jax_moseq.models.keypoint_slds.decision_list import greedy_decision_list_permutation, permute_model_states
     project_dir = str(Path(f"/home/rza/Research/smearlab/scripts/kpms_outputs/rslds_keypoint_moseq_{framerate}/"))
-    jitterAR=1e-2
-    jitterSLDS=1e-2
-    kappaAR=1e10
-    kappaSLDS=1e3
-    lW = 0.1
+    jitterAR=1e-1
+    jitterSLDS=1e-1
+    kappaAR=1e12
+    kappaSLDS=1e6
+    lW = 0.5
     lb = 0.05
 else:
     project_dir = str(Path(f"/home/rza/Research/smearlab/scripts/kpms_outputs/keypoint_moseq_{framerate}/"))
@@ -127,7 +127,10 @@ if rslds:
 
 
 # # modify kappa to maintain the desired syllable time-scale
-model = kpms.update_hypparams(model, kappa=kappaSLDS, lambda_W = lW, lambda_b = lb)
+model = kpms.update_hypparams(model, kappa=kappaSLDS)
+
+model['hypparams']['trans_hypparams']['lambda_W'] = lW
+model['hypparams']['trans_hypparams']['lambda_b'] = lb
 
 
 # run SLDS/rSLDS fitting for an additional 500 iters
