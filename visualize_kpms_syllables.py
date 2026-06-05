@@ -113,7 +113,7 @@ def load_syllables_and_latents(csv_path: str, n_frames: int):
 
 def build_syllable_cmap(syllable_ids):
     unique = sorted(set(s for s in syllable_ids if s >= 0))
-    base = matplotlib.colormaps["tab20b"].resampled(max(len(unique), 1))
+    base = matplotlib.colormaps["tab20"].resampled(max(len(unique), 1))
     colors = {}
     for i, s in enumerate(unique):
         r, g, b, a = base(i % 20)
