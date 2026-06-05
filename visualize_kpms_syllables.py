@@ -125,7 +125,315 @@ def build_syllable_cmap(syllable_ids):
 # Main render loop
 # ─────────────────────────────────────────────────────────────────────────────
 
-def render(cap, n_frames, h, w, keypoints, syllables, syllable_colors, edges, umap_coords, output_path, fps, window=300):
+def render(cap, n_frames, h, w, keypoints, syllables, syllable_colors,
+           edges, output_path, fps, window=300):
+    """
+    Render the annotated video frame-by-frame using matplotlib.
+    Frames are read one at a time from `cap` so memory use stays constant
+    regardless of video length — only a single decoded frame is in RAM at
+    any moment.
+
+    Layout
+    ------
+    ┌──────────────────────────────────────┐
+    │           mouse video                │  (ax_video)
+    │     with keypoints overlaid          │
+    └──────────────────────────────────────┘
+    ┌──────────────────────────────────────┐
+    │  syllable colour timeline strip      │  (ax_timeline)
+    └──────────────────────────────────────┘
+    ┌──────────────────────────────────────┐
+    │  zoomed timeline window ±window/2    │  (ax_zoom)
+    └──────────────────────────────────────┘
+    """
+    # Rewind to the first frame so imshow can get an initial image
+    cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+    ok, first_frame = cap.read()
+    if not ok:
+        sys.exit("[ERROR] Could not read first frame from video.")
+    first_rgb = cv2.cvtColor(first_frame, cv2.COLOR_BGR2RGB)
+    del first_frame   # free immediately; we only needed dimensions & initial image
+
+    fig_width  = 8
+    fig_height = fig_width * h / w + 1.4   # +1.4 for the two timeline rows
+
+    fig = plt.figure(figsize=(fig_width, fig_height), facecolor="#1a1a1a")
+    gs  = fig.add_gridspec(3, 1, height_ratios=[h/w * fig_width, 0.25, 0.35],
+                           hspace=0.08, left=0.04, right=0.96,
+                           top=0.97, bottom=0.03)
+
+    ax_video    = fig.add_subplot(gs[0])
+    ax_timeline = fig.add_subplot(gs[1])
+    ax_zoom     = fig.add_subplot(gs[2])
+
+    ax_video.axis("off")
+    ax_video.set_facecolor("#1a1a1a")
+
+    # ── Video frame ──────────────────────────────────────────────────────────
+    im = ax_video.imshow(first_rgb, aspect="auto", interpolation="bilinear")
+
+    # ── Keypoint scatter ─────────────────────────────────────────────────────
+    scat = ax_video.scatter([], [], s=25, c="cyan", zorder=4,
+                             edgecolors="white", linewidths=0.5)
+
+    # ── Skeleton lines ────────────────────────────────────────────────────────
+    lc = LineCollection([], colors="lime", linewidths=1.2,
+                        alpha=0.75, zorder=3)
+    ax_video.add_collection(lc)
+
+    # ── Syllable label text ───────────────────────────────────────────────────
+    syl_text = ax_video.text(
+        0.02, 0.97, "", transform=ax_video.transAxes,
+        color="white", fontsize=11, fontweight="bold",
+        va="top", ha="left",
+        bbox=dict(boxstyle="round,pad=0.3", fc="#00000088", ec="none"))
+
+    # ── Full timeline ─────────────────────────────────────────────────────────
+    ax_timeline.set_facecolor("#111111")
+    for spine in ax_timeline.spines.values():
+        spine.set_visible(False)
+    cursor_full = build_syllable_timeline(
+        ax_timeline, syllables, syllable_colors, n_frames)
+    ax_timeline.set_title("syllable timeline", color="#aaaaaa",
+                           fontsize=7, pad=2)
+
+    # ── Zoomed timeline ───────────────────────────────────────────────────────
+    ax_zoom.set_facecolor("#111111")
+    for spine in ax_zoom.spines.values():
+        spine.set_color("#333333")
+    ax_zoom.set_xlim(0, window)
+    ax_zoom.set_ylim(0, 1)
+    ax_zoom.tick_params(colors="#666666", labelsize=6)
+    ax_zoom.yaxis.set_visible(False)
+    ax_zoom.set_title(f"±{window//2} frame window", color="#aaaaaa",
+                      fontsize=7, pad=2)
+
+    # Zoomed timeline is redrawn from scratch each frame using BrokenBarHCollection.
+    # We keep a single artist and replace its data rather than adding/removing
+    # patches, which avoids both the polygon-shape error and accumulating artists.
+    zoom_collection = matplotlib.collections.BrokenBarHCollection(
+        [], (0, 1), facecolors=[], linewidth=0, alpha=0.9)
+    ax_zoom.add_collection(zoom_collection)
+    cursor_zoom, = ax_zoom.plot([window // 2, window // 2], [0, 1],
+                                 color="white", linewidth=1.5, zorder=5)
+
+    # ── Legend ────────────────────────────────────────────────────────────────
+    handles = [mpatches.Patch(color=c, label=f"Syl {s}")
+               for s, c in sorted(syllable_colors.items())]
+    if handles:
+        ax_video.legend(handles=handles[:12],   # cap at 12 to avoid overflow
+                        loc="upper right", fontsize=6,
+                        framealpha=0.5, facecolor="#111111",
+                        labelcolor="white", ncol=2,
+                        borderpad=0.4, handlelength=1)
+
+    # ── FFmpeg writer ─────────────────────────────────────────────────────────
+    writer = FFMpegWriter(fps=fps, bitrate=4000,
+                          extra_args=["-vcodec", "h264_nvenc",
+                                      "-vf", "scale=720:-1",
+                                      "-pix_fmt", "yuv420p",
+                                      "-crf", "28"])
+
+    # Rewind before the render loop (we already read frame 0 above)
+    cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+
+    print(f"[INFO] Rendering {n_frames} frames → {output_path}")
+    with writer.saving(fig, output_path, dpi=120):
+        for fi in range(n_frames):
+            if fi % 200 == 0:
+                pct = fi / n_frames * 100
+                print(f"  {fi}/{n_frames}  ({pct:.0f}%)", flush=True)
+
+            # ── Read next frame from disk (one at a time — no bulk storage) ───
+            ok, raw = cap.read()
+            if not ok:
+                print(f"[WARN] Video ended early at frame {fi}; stopping.")
+                break
+            frame_rgb = cv2.cvtColor(raw, cv2.COLOR_BGR2RGB)
+            del raw  # release the BGR copy immediately
+
+            # ── Update video frame ────────────────────────────────────────────
+            im.set_data(frame_rgb)
+            del frame_rgb  # release the RGB copy immediately
+
+            # ── Update keypoints ──────────────────────────────────────────────
+            if fi < len(keypoints):
+                pts = keypoints[fi]                 # (n_nodes, 2)
+                valid = np.isfinite(pts).all(axis=1)
+                scat.set_offsets(pts[valid])
+
+                # skeleton edges
+                segs = []
+                for (a, b) in edges:
+                    if a < len(pts) and b < len(pts):
+                        if np.isfinite(pts[a]).all() and np.isfinite(pts[b]).all():
+                            segs.append([pts[a], pts[b]])
+                lc.set_segments(segs)
+            else:
+                scat.set_offsets(np.empty((0, 2)))
+                lc.set_segments([])
+
+            # ── Update syllable label ─────────────────────────────────────────
+            syl = int(syllables[fi]) if fi < len(syllables) else -1
+            if syl >= 0:
+                col = syllable_colors.get(syl, "white")
+                syl_text.set_text(f"Syllable  {syl}")
+                syl_text.set_bbox(dict(boxstyle="round,pad=0.3",
+                                       fc=(*col[:3], 0.55), ec="none"))
+            else:
+                syl_text.set_text("")
+
+            # ── Update full-timeline cursor ───────────────────────────────────
+            cursor_full.set_xdata([fi, fi])
+
+            # ── Update zoomed timeline ────────────────────────────────────────
+            half = window // 2
+            t0 = max(0, fi - half)
+            t1 = min(n_frames, fi + half)
+
+            ax_zoom.set_xlim(t0, t0 + window)
+            ax_zoom.set_xticks(
+                np.linspace(t0, min(t0 + window, n_frames - 1), 5, dtype=int))
+
+            # Build (xstart, width) spans and matching colours for every
+            # contiguous run of the same syllable in the visible window.
+            # BrokenBarHCollection accepts exactly this format — no polygon
+            # vertices, no None sentinels, no shape ambiguity.
+            window_syls = syllables[t0:t1]
+            xranges, facecolors = [], []
+            run_start = t0
+            run_syl   = window_syls[0] if len(window_syls) else -1
+            for i, s in enumerate(window_syls):
+                if s != run_syl:
+                    if run_syl >= 0:
+                        xranges.append((run_start, t0 + i - run_start))
+                        facecolors.append(syllable_colors.get(run_syl, "grey"))
+                    run_start = t0 + i
+                    run_syl   = s
+            # close the last run
+            if run_syl >= 0 and len(window_syls):
+                xranges.append((run_start, t0 + len(window_syls) - run_start))
+                facecolors.append(syllable_colors.get(run_syl, "grey"))
+
+            # cursor_zoom is a Line2D in ax_zoom.lines — clearing
+            # ax_zoom.collections only removes patch/collection artists
+            # so the cursor is untouched.
+            # cursor_zoom is a Line2D in ax_zoom.lines — clearing
+            # ax_zoom.collections only removes patch/collection artists
+            # so the cursor is untouched.
+            for coll in list(ax_zoom.collections):
+                coll.remove()
+            
+            if xranges:
+                zoom_collection = matplotlib.collections.BrokenBarHCollection(
+                    xranges, (0, 1), facecolors=facecolors,
+                    linewidth=0, alpha=0.9)
+                ax_zoom.add_collection(zoom_collection)
+
+            cursor_zoom.set_xdata([fi, fi])
+
+            writer.grab_frame()
+
+    cap.release()
+    plt.close(fig)
+    print(f"[INFO] Done → {output_path}")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CLI
+# ─────────────────────────────────────────────────────────────────────────────
+
+def parse_args():
+    p = argparse.ArgumentParser(
+        description="Overlay SLEAP keypoints + MoSeq syllables on a mouse video.")
+
+    # ── Identity ──────────────────────────────────────────────────────────────
+    p.add_argument("--subject",  required=True,
+                   help="Subject ID  (used to glob for input files)")
+    p.add_argument("--session",  required=True,
+                   help="Session ID  (used to glob for input files)")
+
+    # ── Directory / project overrides ─────────────────────────────────────────
+    p.add_argument("--kpms-dir",
+                   default="/Users/ramzyalmulla/research/smearlab/kpms",
+                   help="Root dir for kpms outputs & annotated_videos/")
+    p.add_argument("--data-dir",
+                   default="/Volumes/CrucialRZA/smearlab/clickbait-loco/thermister/",
+                   help="Root dir containing .avi and .slp files")
+    p.add_argument("--model-dir",
+                   default="/Volumes/CrucialRZA/smearlab/clickbait-loco/thermister/",
+                   help="Sub-folder under data-dir that contains .slp files")
+    p.add_argument("--model-folder",
+                   default="labels_v003_0.5scaling",
+                   help="Sub-folder under data-dir that contains .slp files")
+
+    # ── Optional overrides ────────────────────────────────────────────────────
+    p.add_argument("--fps",        type=float, default=None,
+                   help="Override output FPS  (default: use video FPS)")
+    p.add_argument("--window",     type=int,   default=300,
+                   help="Frame width of the zoomed timeline  (default: 300)")
+    p.add_argument("--max-frames", type=int,   default=None,
+                   help="Truncate to this many frames (useful for testing)")
+    p.add_argument("--outlier-scale-factor", type=float, default=6.0,
+                   help="Outlier detection stringency for kpms outlier_removal "
+                        "(higher -> fewer points flagged, default: 6.0)")
+    return p.parse_args()
+
+
+def resolve_paths(args):
+    """
+    Use the lab's standard naming convention to locate all inputs and build
+    the output path — mirroring the snippet in the project README.
+
+    Returns (slp_file, vid_file, kpms_file, out_file) as plain strings.
+    """
+    subject = args.subject
+    session = args.session
+    data_dir = Path(args.data_dir)
+    kpms_dir = Path(args.kpms_dir)
+    model_dir = Path(args.model_dir)
+    model    = args.model_folder
+
+    def _glob_one(root, pattern, label):
+        matches = list(root.glob(pattern))
+        if not matches:
+            sys.exit(f"[ERROR] No {label} file found matching: {root / pattern}")
+        if len(matches) > 1:
+            print(f"[WARN] Multiple {label} files found; using the first:")
+            for m in matches:
+                print(f"  {m}")
+        return str(matches[0])
+
+    slp_file  = _glob_one(model_dir, f"{model}/**/[0-9]*{subject}_{session}.slp", "SLEAP .slp")
+    vid_file  = _glob_one(data_dir, f"**/[0-9]*{subject}_{session}.avi",         "video .avi")
+    kpms_file = _glob_one(kpms_dir, f"**/[0-9]*{subject}_{session}.csv",         "kpms .csv")
+
+    out_dir = kpms_dir / "annotated_videos"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_file = str(out_dir / f"{subject}_{session}_annotated.mp4")
+
+    print(f"[INFO] SLEAP  : {slp_file}")
+    print(f"[INFO] Video  : {vid_file}")
+    print(f"[INFO] KPMS   : {kpms_file}")
+    print(f"[INFO] Output : {out_file}")
+    return slp_file, vid_file, kpms_file, out_file
+
+import cv2
+import numpy as np
+
+def build_syllable_cmap(syllable_ids):
+    """Return a dict mapping syllable int → BGR color tuple for OpenCV."""
+    import matplotlib
+    unique = sorted(set(s for s in syllable_ids if s >= 0))
+    base = matplotlib.colormaps["tab20"].resampled(max(len(unique), 1))
+    colors = {}
+    for i, s in enumerate(unique):
+        r, g, b, a = base(i % 20)
+        colors[s] = (int(b * 255), int(g * 255), int(r * 255))  # Convert to BGR
+    return colors
+
+def render(cap, n_frames, h, w, keypoints, syllables, syllable_colors, edges, output_path, fps, window=300):
+    # Layout configuration
     timeline_h = 30
     zoom_h = 60
     margin = 15
