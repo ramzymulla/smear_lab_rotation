@@ -9,7 +9,8 @@ import argparse
 import sys
 import warnings
 from pathlib import Path
-
+import subprocess
+import os
 import cv2
 import matplotlib
 import numpy as np
@@ -439,12 +440,15 @@ def render(cap, n_frames, h, w, keypoints, syllables, syllable_colors, edges, ou
     margin = 15
     panel_h = timeline_h + zoom_h + (margin * 3)
     
-    # Expand output width to fit a square UMAP visualizer if latents exist
     umap_size = h if umap_coords is not None else 0
     out_h = h + panel_h
     out_w = w + umap_size
 
-    # Pre-render full timeline
+    final_w = max(2, int(out_w * scale))
+    final_h = max(2, int(out_h * scale))
+    final_w += final_w % 2
+    final_h += final_h % 2
+
     full_timeline_img = np.full((timeline_h, out_w, 3), 50, dtype=np.uint8)
     for fi, syl in enumerate(syllables):
         if syl >= 0 and syl in syllable_colors:
@@ -452,7 +456,6 @@ def render(cap, n_frames, h, w, keypoints, syllables, syllable_colors, edges, ou
             x2 = int(((fi + 1) / n_frames) * out_w)
             full_timeline_img[:, x1:max(x2, x1 + 1)] = syllable_colors[syl]
 
-    # Pre-render static UMAP background
     pad = 20
     if umap_coords is not None:
         umap_bg = np.full((h, umap_size, 3), 20, dtype=np.uint8)
@@ -463,11 +466,31 @@ def render(cap, n_frames, h, w, keypoints, syllables, syllable_colors, edges, ou
                 cy = int(uy * (h - 2 * pad)) + pad
                 cv2.circle(umap_bg, (cx, cy), 2, syllable_colors[s], -1)
 
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    writer = cv2.VideoWriter(output_path, fourcc, fps, (out_w, out_h))
+    use_nvenc = sys.platform == "linux" and codec.lower() == "nvenc"
+    
+    if use_nvenc:
+        print(f"[INFO] Rendering {n_frames} frames via FFmpeg NVENC pipe ({final_w}x{final_h}) → {output_path}")
+        cmd = [
+            'ffmpeg', '-y',
+            '-f', 'rawvideo',
+            '-vcodec', 'rawvideo',
+            '-s', f'{final_w}x{final_h}',
+            '-pix_fmt', 'bgr24',
+            '-r', str(fps),
+            '-i', '-',
+            '-c:v', 'h264_nvenc',
+            '-preset', 'p4', 
+            '-pix_fmt', 'yuv420p',
+            output_path
+        ]
+        writer_process = subprocess.Popen(cmd, stdin=subprocess.PIPE)
+    else:
+        print(f"[INFO] Rendering {n_frames} frames via OpenCV ({codec} @ {final_w}x{final_h}) → {output_path}")
+        backend = cv2.CAP_AVFOUNDATION if sys.platform == "darwin" and codec.lower() in ['avc1', 'hvc1'] else cv2.CAP_ANY
+        fourcc = cv2.VideoWriter_fourcc(*codec)
+        writer = cv2.VideoWriter(output_path, backend, fourcc, fps, (final_w, final_h))
 
     cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-    print(f"[INFO] Rendering {n_frames} frames via OpenCV → {output_path}")
 
     for fi in range(n_frames):
         if fi % 500 == 0:
@@ -483,7 +506,6 @@ def render(cap, n_frames, h, w, keypoints, syllables, syllable_colors, edges, ou
         syl = int(syllables[fi]) if fi < len(syllables) else -1
         active_color = syllable_colors.get(syl, (150, 150, 150))
 
-        # Draw Skeleton & Keypoints with active syllable color
         if fi < len(keypoints):
             pts = keypoints[fi]
             for (a, b) in edges:
@@ -498,7 +520,6 @@ def render(cap, n_frames, h, w, keypoints, syllables, syllable_colors, edges, ou
                 if np.isfinite(pt).all():
                     cv2.circle(canvas, (int(pt[0]), int(pt[1])), 4, active_color, -1)
 
-        # Draw UMAP mapping
         if umap_coords is not None:
             canvas[:h, w:out_w] = umap_bg.copy()
             cv2.putText(canvas, "UMAP Latent Space", (w + 15, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (200, 200, 200), 2)
@@ -510,14 +531,12 @@ def render(cap, n_frames, h, w, keypoints, syllables, syllable_colors, edges, ou
                 cv2.circle(canvas, (cx, cy), 8, (255, 255, 255), -1)
                 cv2.circle(canvas, (cx, cy), 5, active_color, -1)
 
-        # Draw Syllable Text Overlay
         if syl >= 0:
             text = f"Syllable {syl}"
             (tw, th), _ = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 1, 2)
             cv2.rectangle(canvas, (10, 10), (20 + tw, 20 + th), (0, 0, 0), -1)
             cv2.putText(canvas, text, (15, 15 + th), cv2.FONT_HERSHEY_SIMPLEX, 1, active_color, 2)
 
-        # Draw Full Timeline
         y1_full = h + margin
         y2_full = y1_full + timeline_h
         canvas[y1_full:y2_full, :] = full_timeline_img
@@ -525,7 +544,6 @@ def render(cap, n_frames, h, w, keypoints, syllables, syllable_colors, edges, ou
         cx_full = int((fi / n_frames) * out_w)
         cv2.line(canvas, (cx_full, y1_full), (cx_full, y2_full), (255, 255, 255), 2)
 
-        # Draw Zoomed Timeline
         y1_zoom = y2_full + margin
         y2_zoom = y1_zoom + zoom_h
         cv2.rectangle(canvas, (0, y1_zoom), (out_w, y2_zoom), (30, 30, 30), -1)
@@ -546,9 +564,22 @@ def render(cap, n_frames, h, w, keypoints, syllables, syllable_colors, edges, ou
         cx_zoom = int(((fi - t0) / window_len) * out_w)
         cv2.line(canvas, (cx_zoom, y1_zoom), (cx_zoom, y2_zoom), (255, 255, 255), 2)
 
-        writer.write(canvas)
+        if scale != 1.0:
+            frame_to_write = cv2.resize(canvas, (final_w, final_h), interpolation=cv2.INTER_AREA)
+        else:
+            frame_to_write = canvas
 
-    writer.release()
+        if use_nvenc:
+            writer_process.stdin.write(frame_to_write.tobytes())
+        else:
+            writer.write(frame_to_write)
+
+    if use_nvenc:
+        writer_process.stdin.close()
+        writer_process.wait()
+    else:
+        writer.release()
+        
     cap.release()
     print(f"[INFO] Done → {output_path}")
 
@@ -569,6 +600,12 @@ def parse_args():
     p.add_argument("--window", type=int, default=300)
     p.add_argument("--max-frames", type=int, default=None)
     p.add_argument("--outlier-scale-factor", type=float, default=6.0)
+    
+    p.add_argument("--codec", type=str, default="mp4v",
+                   help="FourCC video codec. Use 'avc1' for Mac GPU, or 'nvenc' for Linux NVIDIA GPU. (default: mp4v)")
+    p.add_argument("--scale", type=float, default=1.0,
+                   help="Scale down output resolution. e.g., 0.5 for half resolution. (default: 1.0)")
+                   
     return p.parse_args()
 
 
@@ -598,6 +635,9 @@ def main():
     args = parse_args()
     slp_file, vid_file, kpms_file, out_file = resolve_paths(args)
 
+    if os.path.exists(out_file):
+        os.remove(out_file)
+
     cap, n_frames, vid_fps, h, w = open_video(vid_file)
     fps = args.fps or vid_fps
 
@@ -621,12 +661,12 @@ def main():
         reducer = umap.UMAP(n_components=2, random_state=42)
         u_emb = reducer.fit_transform(latents)
         
-        # Normalize between 0 and 1 for rendering boundaries
         u_min, u_max = u_emb.min(axis=0), u_emb.max(axis=0)
         umap_coords = (u_emb - u_min) / (u_max - u_min + 1e-8)
 
     render(cap, n_frames, h, w, keypoints, syllables, syllable_colors,
-           edges, umap_coords, out_file, fps, window=args.window)
+           edges, umap_coords, out_file, fps, window=args.window,
+           codec=args.codec, scale=args.scale)
 
 if __name__ == "__main__":
     main()
