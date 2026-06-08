@@ -80,7 +80,7 @@
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-loco\thermister\2208\a16\05172026_2208_a16_video_timestamp.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\thermister\2208\a29\06062026_2208_a29_video_timestamp.csv</io:FileName>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>None</io:Suffix>
@@ -255,7 +255,7 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="cv:Threshold">
-          <cv:ThresholdValue>65</cv:ThresholdValue>
+          <cv:ThresholdValue>62</cv:ThresholdValue>
           <cv:MaxValue>255</cv:MaxValue>
           <cv:ThresholdType>Binary</cv:ThresholdType>
         </Combinator>
@@ -584,6 +584,7 @@ def generate_targets(n_tiles_per_side, max_targets_per_cell=5, shuffle=True):
     if shuffle:
         random.shuffle(target_queue)
 
+
     active_target = None
     if target_queue:
         active_target = target_queue[0]
@@ -607,7 +608,8 @@ reward_left_count = 0
 reward_right_count = 0
 reward_state = False
 click = False
-click_start_time = 0
+click_start_time = 0.0
+last_click_time = 0.0
 drinking = False
 reward_left = False
 reward_right = False
@@ -649,7 +651,7 @@ black = Scalar.All(0)
 def process(value):
     global trial_count, reward_left_count, reward_right_count
     global target_queue, active_target, target_distribution
-    global reward_state, click, click_start_time
+    global reward_state, click, click_start_time, last_click_time
     global drinking, reward_left, reward_right
     global reward_left_start_time, reward_right_start_time
     global iti_start_time, iti_duration, in_iti
@@ -661,14 +663,16 @@ def process(value):
     global reward_window_start_time, failed_trial_count
 
     current_time = time.time()
-    reward_duration_left  = 0.049
-    reward_duration_right = 0.05
+    reward_duration_left  = 0.039
+    reward_duration_right = 0.04
     click_duration        = 0.1
-    iti_duration_min      = 1.0
-    iti_duration_max      = 5.0
+    iti_duration_min      = 1.5
+    iti_duration_max      = 2.0
     withdrawal_duration   = 0.5
 
     target_found_this_frame = False
+
+    time_since_last_click = current_time - click_start_time
 
     centroid_x, centroid_y, image = (
         value[0].Item1, value[0].Item2, value[0].Item3
@@ -677,14 +681,17 @@ def process(value):
     poke_right = bool(value[1][1])
     nRewards = reward_left_count + reward_right_count
     target_radius = float(value[1][2])
-    if nRewards==0:
-        target_radius = 250
+       
+       
+
+    if 0 and nRewards==0:
+        target_radius = 350
     elif n_tiles_per_side == 1:
         target_radius = max(100.0, 250.0 - (nRewards * 3))
     elif 0:
         # target_radius = max(target_radius, 250.0 - (nRewards * 3))
         target_radius = max(target_radius, 100.0 - (nRewards * 2))
-    elif 1 and target_radius &lt; 300:
+    elif time_since_last_click &lt; 2*60.0 and target_radius &lt; 300:
         target_radius = 1
     
         
@@ -996,7 +1003,7 @@ it.Item6 as targetRadius
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-loco\thermister\2208\a16\05172026_2208_a16_eventsA.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\thermister\2208\a29\06062026_2208_a29_eventsA.csv</io:FileName>
         <io:Delimiter>,</io:Delimiter>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
@@ -1104,7 +1111,7 @@ def process(value):
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="io:WriteAllText">
-          <io:Path>E:\data\clickbait-loco\thermister\2208\a16\05172026_2208_a16_trialcounts.txt</io:Path>
+          <io:Path>E:\data\clickbait-loco\thermister\2208\a29\06062026_2208_a29_trialcounts.txt</io:Path>
           <io:Overwrite>true</io:Overwrite>
           <io:Append>false</io:Append>
         </Combinator>
@@ -1138,7 +1145,7 @@ it.Item5 as clickState
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-loco\thermister\2208\a16\05172026_2208_a16_eventsB.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\thermister\2208\a29\06062026_2208_a29_eventsB.csv</io:FileName>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>None</io:Suffix>
@@ -1179,7 +1186,7 @@ it.Item2 as interval_ms
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-loco\thermister\2208\a16\05172026_2208_a16_raw_video_timestamp.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\thermister\2208\a29\06062026_2208_a29_raw_video_timestamp.csv</io:FileName>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>None</io:Suffix>
@@ -1209,12 +1216,12 @@ it.Item2 as interval_ms
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="cv:AffineTransform">
           <cv:Pivot>
-            <cv:X>1218.4375</cv:X>
-            <cv:Y>539.9024</cv:Y>
+            <cv:X>1213.04468</cv:X>
+            <cv:Y>537.4152</cv:Y>
           </cv:Pivot>
           <cv:Translation>
-            <cv:X>-993.4375</cv:X>
-            <cv:Y>-289.9024</cv:Y>
+            <cv:X>-988.0447</cv:X>
+            <cv:Y>-287.415222</cv:Y>
           </cv:Translation>
           <cv:Rotation>0</cv:Rotation>
           <cv:Scale>
@@ -1235,7 +1242,7 @@ it.Item2 as interval_ms
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="cv:WarpAffine">
-          <cv:Transform>1,0,-993.8229;0,1,-290.7523</cv:Transform>
+          <cv:Transform>1,0,-987.2296;0,1,-286.5616</cv:Transform>
           <cv:Flags>Linear</cv:Flags>
           <cv:FillValue>
             <cv:Val0>0</cv:Val0>
@@ -1265,7 +1272,7 @@ it.Item2 as interval_ms
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="ffmpeg:VideoWriter">
-          <ffmpeg:FileName>E:\data\clickbait-loco\thermister\2208\a16\05172026_2208_a16_raw.avi</ffmpeg:FileName>
+          <ffmpeg:FileName>E:\data\clickbait-loco\thermister\2208\a29\06062026_2208_a29_raw.avi</ffmpeg:FileName>
           <ffmpeg:Suffix>None</ffmpeg:Suffix>
           <ffmpeg:Overwrite>false</ffmpeg:Overwrite>
           <ffmpeg:FrameRate>210</ffmpeg:FrameRate>
@@ -1304,12 +1311,18 @@ it.Item2 as interval_ms
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="al:AudioPlayback">
+          <al:DeviceName>Generic Software on Speakers (2- Xonar SoundCard)</al:DeviceName>
           <al:SampleRate>44100</al:SampleRate>
           <al:State>Playing</al:State>
         </Combinator>
       </Expression>
       <Expression xsi:type="MemberSelector">
         <Selector>Orientation</Selector>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="dsp:Difference">
+          <dsp:Order>1</dsp:Order>
+        </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:WindowCount">
@@ -1334,10 +1347,12 @@ it.Item2 as interval_ms
           </Edges>
         </Workflow>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="dsp:Difference">
-          <dsp:Order>1</dsp:Order>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="dsp:Difference">
+            <dsp:Order>1</dsp:Order>
+          </Combinator>
+        </Builder>
       </Expression>
       <Expression xsi:type="Disable">
         <Builder xsi:type="Combinator">
@@ -1351,6 +1366,11 @@ it.Item2 as interval_ms
         </Builder>
       </Expression>
       <Expression xsi:type="Combinator">
+        <Combinator xsi:type="dsp:Difference">
+          <dsp:Order>1</dsp:Order>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:WindowCount">
           <rx:Count>10</rx:Count>
           <rx:Skip>1</rx:Skip>
@@ -1373,10 +1393,12 @@ it.Item2 as interval_ms
           </Edges>
         </Workflow>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="dsp:Difference">
-          <dsp:Order>1</dsp:Order>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="dsp:Difference">
+            <dsp:Order>1</dsp:Order>
+          </Combinator>
+        </Builder>
       </Expression>
       <Expression xsi:type="Disable">
         <Builder xsi:type="Combinator">
@@ -1390,6 +1412,11 @@ it.Item2 as interval_ms
         </Builder>
       </Expression>
       <Expression xsi:type="Combinator">
+        <Combinator xsi:type="dsp:Difference">
+          <dsp:Order>1</dsp:Order>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:WindowCount">
           <rx:Count>10</rx:Count>
           <rx:Skip>1</rx:Skip>
@@ -1412,10 +1439,12 @@ it.Item2 as interval_ms
           </Edges>
         </Workflow>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="dsp:Difference">
-          <dsp:Order>1</dsp:Order>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="dsp:Difference">
+            <dsp:Order>1</dsp:Order>
+          </Combinator>
+        </Builder>
       </Expression>
       <Expression xsi:type="Disable">
         <Builder xsi:type="Combinator">
@@ -1461,15 +1490,17 @@ it.Item2 as interval_ms
 
 
 
-minTargetRadius = 50.0
+minTargetRadius = 1.0
 radiusTarget = minTargetRadius
 dt = 1.0/30.0
+prevAngle = 0
 
 @returns(tuple)
 def process(value):
     global radiusTarget
     global minTargetRadius
     global dt
+    global prevAngle
     
     # print(value[0])
     # print(value[1])
@@ -1477,8 +1508,10 @@ def process(value):
     pokeLeft,pokeRight = bool(value[1][0]),bool(value[1][1])
     
     
-
     headingAngle = math.atan2(dy, dx)
+    yawRate = (headingAngle - prevAngle)/dt
+    prevAngle = headingAngle
+    
 
     v = math.hypot(dx, dy)/dt # px/s
     angVel = abs(da)/dt # rad/s
@@ -1495,8 +1528,8 @@ def process(value):
     metric = angVel
     growthRate = 300.0
     maxRadius = 1000.0
-    shrinkRate = 150.0
-    vThresh = 200.0
+    shrinkRate = 100.0
+    vThresh = 100.0
     
     if v &gt; vThresh and abs(metric)&gt;threshrange[0]:
         if radiusTarget &lt; maxRadius:
@@ -1506,7 +1539,7 @@ def process(value):
     else:
         # radiusTarget = max(minTargetRadius, radiusTarget - 10*dur*(1-(v/300)))
         radiusTarget = min(max(minTargetRadius, radiusTarget-shrinkRate*dt),maxRadius)
-    return (radiusTarget,angVel,v,orbitalRadius,headingAngle)
+    return (radiusTarget,angVel,v,orbitalRadius,headingAngle,yawRate)
 </ipy:Script>
       </Expression>
       <Expression xsi:type="ipy:PythonTransform">
@@ -1519,6 +1552,14 @@ def process(value):
       </Expression>
       <Expression xsi:type="rx:BehaviorSubject">
         <Name>TargetRadius</Name>
+      </Expression>
+      <Expression xsi:type="ipy:PythonTransform">
+        <ipy:Name>yawRate</ipy:Name>
+        <ipy:Script># Get positional velocity
+
+@returns(float)
+def process(value):
+  return value[5]</ipy:Script>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:Timestamp" />
@@ -1587,7 +1628,7 @@ it.Item6 as headingAngle
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>E:\data\clickbait-loco\thermister\2208\a16\05172026_2208_a16_kinematicsA.csv</io:FileName>
+        <io:FileName>E:\data\clickbait-loco\thermister\2208\a29\06062026_2208_a29_kinematicsA.csv</io:FileName>
         <io:Delimiter>,</io:Delimiter>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
@@ -1605,7 +1646,7 @@ it.Item6 as headingAngle
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="ffmpeg:VideoWriter">
-          <ffmpeg:FileName>E:\data\clickbait-loco\thermister\2208\a16\05172026_2208_a16.avi</ffmpeg:FileName>
+          <ffmpeg:FileName>E:\data\clickbait-loco\thermister\2208\a29\06062026_2208_a29.avi</ffmpeg:FileName>
           <ffmpeg:Suffix>None</ffmpeg:Suffix>
           <ffmpeg:Overwrite>false</ffmpeg:Overwrite>
           <ffmpeg:FrameRate>30</ffmpeg:FrameRate>
@@ -2266,7 +2307,7 @@ def generate():
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="StringProperty">
-          <Value>05172026</Value>
+          <Value>06062026</Value>
         </Combinator>
       </Expression>
       <Expression xsi:type="rx:ReplaySubject">
@@ -2302,7 +2343,7 @@ def generate():
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="StringProperty">
-          <Value>a16</Value>
+          <Value>a29</Value>
         </Combinator>
       </Expression>
       <Expression xsi:type="rx:ReplaySubject">
@@ -2378,9 +2419,9 @@ def generate():
       <Edge From="7" To="8" Label="Source1" />
       <Edge From="7" To="17" Label="Source1" />
       <Edge From="7" To="27" Label="Source1" />
-      <Edge From="7" To="120" Label="Source1" />
+      <Edge From="7" To="123" Label="Source1" />
       <Edge From="8" To="9" Label="Source1" />
-      <Edge From="8" To="144" Label="Source1" />
+      <Edge From="8" To="148" Label="Source1" />
       <Edge From="9" To="10" Label="Source1" />
       <Edge From="10" To="13" Label="Source1" />
       <Edge From="10" To="40" Label="Source2" />
@@ -2402,20 +2443,20 @@ def generate():
       <Edge From="24" To="92" Label="Source1" />
       <Edge From="24" To="93" Label="Source1" />
       <Edge From="25" To="28" Label="Source1" />
-      <Edge From="25" To="112" Label="Source1" />
+      <Edge From="25" To="113" Label="Source1" />
       <Edge From="26" To="28" Label="Source2" />
-      <Edge From="26" To="116" Label="Source1" />
+      <Edge From="26" To="118" Label="Source1" />
       <Edge From="27" To="28" Label="Source3" />
       <Edge From="27" To="44" Label="Source1" />
       <Edge From="28" To="37" Label="Source1" />
       <Edge From="29" To="30" Label="Source1" />
       <Edge From="30" To="31" Label="Source1" />
       <Edge From="31" To="36" Label="Source1" />
-      <Edge From="31" To="123" Label="Source2" />
+      <Edge From="31" To="126" Label="Source2" />
       <Edge From="32" To="33" Label="Source1" />
       <Edge From="33" To="34" Label="Source1" />
       <Edge From="34" To="36" Label="Source2" />
-      <Edge From="34" To="123" Label="Source1" />
+      <Edge From="34" To="126" Label="Source1" />
       <Edge From="35" To="36" Label="Source3" />
       <Edge From="36" To="37" Label="Source2" />
       <Edge From="37" To="38" Label="Source1" />
@@ -2433,7 +2474,7 @@ def generate():
       <Edge From="38" To="68" Label="Source1" />
       <Edge From="38" To="69" Label="Source1" />
       <Edge From="38" To="75" Label="Source1" />
-      <Edge From="38" To="132" Label="Source1" />
+      <Edge From="38" To="136" Label="Source1" />
       <Edge From="39" To="40" Label="Source3" />
       <Edge From="39" To="62" Label="Source1" />
       <Edge From="39" To="63" Label="Source1" />
@@ -2502,65 +2543,69 @@ def generate():
       <Edge From="108" To="109" Label="Source1" />
       <Edge From="109" To="110" Label="Source1" />
       <Edge From="110" To="111" Label="Source1" />
-      <Edge From="111" To="122" Label="Source1" />
-      <Edge From="112" To="113" Label="Source1" />
+      <Edge From="111" To="112" Label="Source1" />
+      <Edge From="112" To="125" Label="Source1" />
       <Edge From="113" To="114" Label="Source1" />
       <Edge From="114" To="115" Label="Source1" />
-      <Edge From="115" To="122" Label="Source2" />
+      <Edge From="115" To="116" Label="Source1" />
       <Edge From="116" To="117" Label="Source1" />
-      <Edge From="117" To="118" Label="Source1" />
+      <Edge From="117" To="125" Label="Source2" />
       <Edge From="118" To="119" Label="Source1" />
-      <Edge From="119" To="122" Label="Source3" />
+      <Edge From="119" To="120" Label="Source1" />
       <Edge From="120" To="121" Label="Source1" />
-      <Edge From="121" To="122" Label="Source4" />
-      <Edge From="122" To="124" Label="Source1" />
-      <Edge From="123" To="124" Label="Source2" />
-      <Edge From="124" To="125" Label="Source1" />
-      <Edge From="125" To="126" Label="Source1" />
-      <Edge From="126" To="127" Label="Source1" />
+      <Edge From="121" To="122" Label="Source1" />
+      <Edge From="122" To="125" Label="Source3" />
+      <Edge From="123" To="124" Label="Source1" />
+      <Edge From="124" To="125" Label="Source4" />
+      <Edge From="125" To="127" Label="Source1" />
+      <Edge From="126" To="127" Label="Source2" />
       <Edge From="127" To="128" Label="Source1" />
-      <Edge From="127" To="130" Label="Source1" />
-      <Edge From="127" To="133" Label="Source1" />
-      <Edge From="127" To="134" Label="Source1" />
-      <Edge From="127" To="135" Label="Source1" />
-      <Edge From="127" To="136" Label="Source1" />
       <Edge From="128" To="129" Label="Source1" />
+      <Edge From="129" To="130" Label="Source1" />
       <Edge From="130" To="131" Label="Source1" />
-      <Edge From="131" To="137" Label="Source1" />
-      <Edge From="132" To="137" Label="Source2" />
-      <Edge From="133" To="137" Label="Source3" />
-      <Edge From="134" To="137" Label="Source4" />
-      <Edge From="135" To="137" Label="Source5" />
-      <Edge From="136" To="137" Label="Source6" />
-      <Edge From="137" To="138" Label="Source1" />
-      <Edge From="138" To="141" Label="Source1" />
-      <Edge From="139" To="140" Label="Source1" />
-      <Edge From="140" To="141" Label="Source2" />
-      <Edge From="142" To="143" Label="Source1" />
-      <Edge From="143" To="144" Label="Source2" />
+      <Edge From="130" To="133" Label="Source1" />
+      <Edge From="130" To="134" Label="Source1" />
+      <Edge From="130" To="137" Label="Source1" />
+      <Edge From="130" To="138" Label="Source1" />
+      <Edge From="130" To="139" Label="Source1" />
+      <Edge From="130" To="140" Label="Source1" />
+      <Edge From="131" To="132" Label="Source1" />
+      <Edge From="134" To="135" Label="Source1" />
+      <Edge From="135" To="141" Label="Source1" />
+      <Edge From="136" To="141" Label="Source2" />
+      <Edge From="137" To="141" Label="Source3" />
+      <Edge From="138" To="141" Label="Source4" />
+      <Edge From="139" To="141" Label="Source5" />
+      <Edge From="140" To="141" Label="Source6" />
+      <Edge From="141" To="142" Label="Source1" />
+      <Edge From="142" To="145" Label="Source1" />
+      <Edge From="143" To="144" Label="Source1" />
+      <Edge From="144" To="145" Label="Source2" />
       <Edge From="146" To="147" Label="Source1" />
-      <Edge From="147" To="148" Label="Source1" />
+      <Edge From="147" To="148" Label="Source2" />
+      <Edge From="150" To="151" Label="Source1" />
       <Edge From="151" To="152" Label="Source1" />
-      <Edge From="152" To="153" Label="Source1" />
-      <Edge From="154" To="155" Label="Source1" />
       <Edge From="155" To="156" Label="Source1" />
-      <Edge From="157" To="158" Label="Source1" />
+      <Edge From="156" To="157" Label="Source1" />
       <Edge From="158" To="159" Label="Source1" />
-      <Edge From="160" To="161" Label="Source1" />
+      <Edge From="159" To="160" Label="Source1" />
       <Edge From="161" To="162" Label="Source1" />
-      <Edge From="163" To="164" Label="Source1" />
+      <Edge From="162" To="163" Label="Source1" />
       <Edge From="164" To="165" Label="Source1" />
-      <Edge From="166" To="167" Label="Source1" />
-      <Edge From="167" To="175" Label="Source1" />
-      <Edge From="168" To="175" Label="Source2" />
-      <Edge From="169" To="175" Label="Source3" />
-      <Edge From="170" To="175" Label="Source4" />
-      <Edge From="171" To="175" Label="Source5" />
-      <Edge From="172" To="175" Label="Source6" />
-      <Edge From="173" To="175" Label="Source7" />
-      <Edge From="174" To="175" Label="Source8" />
-      <Edge From="175" To="176" Label="Source1" />
-      <Edge From="176" To="177" Label="Source1" />
+      <Edge From="165" To="166" Label="Source1" />
+      <Edge From="167" To="168" Label="Source1" />
+      <Edge From="168" To="169" Label="Source1" />
+      <Edge From="170" To="171" Label="Source1" />
+      <Edge From="171" To="179" Label="Source1" />
+      <Edge From="172" To="179" Label="Source2" />
+      <Edge From="173" To="179" Label="Source3" />
+      <Edge From="174" To="179" Label="Source4" />
+      <Edge From="175" To="179" Label="Source5" />
+      <Edge From="176" To="179" Label="Source6" />
+      <Edge From="177" To="179" Label="Source7" />
+      <Edge From="178" To="179" Label="Source8" />
+      <Edge From="179" To="180" Label="Source1" />
+      <Edge From="180" To="181" Label="Source1" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>

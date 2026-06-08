@@ -2,15 +2,17 @@ import math
 
 
 
-minTargetRadius = 50.0
+minTargetRadius = 1.0
 radiusTarget = minTargetRadius
 dt = 1.0/30.0
+prevAngle = 0
 
 @returns(tuple)
 def process(value):
     global radiusTarget
     global minTargetRadius
     global dt
+    global prevAngle
     
     # print(value[0])
     # print(value[1])
@@ -18,9 +20,11 @@ def process(value):
     pokeLeft,pokeRight = bool(value[1][0]),bool(value[1][1])
     
     
-
     headingAngle = math.atan2(dy, dx)
-
+    yawRate = (headingAngle - prevAngle)/dt
+    prevAngle = headingAngle
+    
+    
     v = math.hypot(dx, dy)/dt # px/s
     angVel = abs(da)/dt # rad/s
     orbitalRadius = min(v/angVel if angVel > 0 else float(60000), 1000) # px
@@ -36,8 +40,8 @@ def process(value):
     metric = angVel
     growthRate = 300.0
     maxRadius = 1000.0
-    shrinkRate = 150.0
-    vThresh = 200.0
+    shrinkRate = 100.0
+    vThresh = 100.0
     
     if v > vThresh and abs(metric)>threshrange[0]:
         if radiusTarget < maxRadius:
@@ -47,4 +51,4 @@ def process(value):
     else:
         # radiusTarget = max(minTargetRadius, radiusTarget - 10*dur*(1-(v/300)))
         radiusTarget = min(max(minTargetRadius, radiusTarget-shrinkRate*dt),maxRadius)
-    return (radiusTarget,angVel,v,orbitalRadius,headingAngle)
+    return (radiusTarget,angVel,v,orbitalRadius,headingAngle,yawRate)

@@ -236,6 +236,7 @@ def generate_targets(n_tiles_per_side, max_targets_per_cell=5, shuffle=True):
     if shuffle:
         random.shuffle(target_queue)
 
+
     active_target = None
     if target_queue:
         active_target = target_queue[0]
@@ -259,8 +260,8 @@ reward_left_count = 0
 reward_right_count = 0
 reward_state = False
 click = False
-click_start_time = 0
-last_click_time = 0
+click_start_time = 0.0
+last_click_time = 0.0
 drinking = False
 reward_left = False
 reward_right = False
@@ -314,11 +315,11 @@ def process(value):
     global reward_window_start_time, failed_trial_count
 
     current_time = time.time()
-    reward_duration_left  = 0.049
-    reward_duration_right = 0.05
+    reward_duration_left  = 0.039
+    reward_duration_right = 0.04
     click_duration        = 0.1
-    iti_duration_min      = 1.0
-    iti_duration_max      = 5.0
+    iti_duration_min      = 1.5
+    iti_duration_max      = 2.0
     withdrawal_duration   = 0.5
 
     target_found_this_frame = False
@@ -332,16 +333,18 @@ def process(value):
     poke_right = bool(value[1][1])
     nRewards = reward_left_count + reward_right_count
     target_radius = float(value[1][2])
-    if nRewards==0:
-        target_radius = 250
+       
+       
+
+    if 0 and nRewards==0:
+        target_radius = 350
     elif n_tiles_per_side == 1:
         target_radius = max(100.0, 250.0 - (nRewards * 3))
     elif 0:
         # target_radius = max(target_radius, 250.0 - (nRewards * 3))
         target_radius = max(target_radius, 100.0 - (nRewards * 2))
-    elif 1 and target_radius < 300 and time_since_last_click < 2*60.0:
+    elif time_since_last_click < 2*60.0 and target_radius < 300:
         target_radius = 1
-
     
         
 
