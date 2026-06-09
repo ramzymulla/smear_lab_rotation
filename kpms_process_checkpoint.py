@@ -19,6 +19,67 @@ framerate = 30
 sleap_dir = '/home/rza/Research/smearlab/scripts/sleap/labels_v003_0.5scaling/models/260419_223138.0.5_scaling.single_instance.n=193/preds/'
 includeStr = "**/*a22.avi".split('/')[-1]
 
+def generate_session_umaps(results: dict, project_dir: str, model_name: str):
+    out_dir = Path(project_dir) / "annotated_videos" / model_name / "umaps"
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    states_dict = results.get("states", {})
+    latent_key = next((k for k in ["latents", "x", "v"] if k in results), None)
+
+    if not latent_key:
+        print("[ERROR] No latent states found in results dictionary.")
+        return
+
+    for session_key, syllables in states_dict.items():
+        if session_key not in results[latent_key]:
+            print(f"[WARN] No latents found for session {session_key}, skipping.")
+            continue
+
+        latents = results[latent_key][session_key]
+        
+        # Filter out unlabeled frames
+        valid = syllables >= 0
+        if not np.any(valid):
+            print(f"[WARN] No valid syllables for session {session_key}, skipping.")
+            continue
+
+        valid_latents = latents[valid]
+        valid_syllables = syllables[valid]
+
+        print(f"[INFO] Computing UMAP for session: {session_key} ({len(valid_latents)} frames)")
+        reducer = umap.UMAP(n_components=2, random_state=42)
+        u_emb = reducer.fit_transform(valid_latents)
+
+        plt.figure(figsize=(8, 8), facecolor="white")
+        unique_syls = np.unique(valid_syllables)
+        cmap = plt.cm.get_cmap("tab20b", max(len(unique_syls), 1))
+
+        scatter = plt.scatter(
+            u_emb[:, 0], 
+            u_emb[:, 1], 
+            c=valid_syllables, 
+            cmap=cmap, 
+            s=10, 
+            alpha=0.7, 
+            edgecolors="none"
+        )
+
+        handles, _ = scatter.legend_elements(prop="colors", alpha=1)
+        labels = [f"Syl {s}" for s in unique_syls]
+
+        if len(handles) > 20:
+            handles, labels = handles[:20], labels[:20]
+            labels[-1] = "..."
+
+        plt.legend(handles, labels, loc="upper right", bbox_to_anchor=(1.15, 1), fontsize=8, ncol=1)
+        plt.title(f"UMAP Latent Space - {session_key}")
+        plt.axis("off")
+        plt.tight_layout()
+
+        out_path = out_dir / f"{session_key}_umap.png"
+        plt.savefig(out_path, dpi=300, bbox_inches="tight")
+        plt.close()
+        print(f"[INFO] Saved -> {out_path}")
 
 rslds=True
 if rslds:
