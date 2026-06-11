@@ -90,6 +90,7 @@ if rslds:
     jitterSLDS=1e-1
     kappaAR=1e6
     kappaSLDS=1e6
+    subset = "2208"
 else:
     # project_dir = str(Path(f"/home/rza/Research/smearlab/scripts/kpms_outputs/keypoint_moseq_{framerate}/"))
     jitterAR=1e-1
@@ -97,24 +98,48 @@ else:
     kappaAR=1e10
     kappaSLDS=5e3
 
-def generate_session_umaps(results: dict, project_dir: str, model_name: str):
+import plotly.express as px
+import pandas as pd
+import gc
+
+def generate_session_umaps(results: dict, project_dir: str, model_name: str, max_3d_points: int = 50000, subset=None):
     """
-    Computes and saves a static 2D UMAP scatter plot for each session 
-    in the keypoint-MoSeq results dictionary.
+    Computes and saves a static 2D UMAP scatter plot and an interactive 3D UMAP plot 
+    for each session in the keypoint-MoSeq results dictionary.
     """
+    print(f"[INFO] Loading latents of UMAP visualization...")
     out_dir = Path(project_dir) / model_name / "umaps" 
     out_dir.mkdir(parents=True, exist_ok=True)
 
+    if subset is not None:
+        results = {key:results[key] for key in results if subset in key}
     
-    latentsAll = np.concatenate([results[key]['latent_state'] for key in results],axis=0)
+    latentsAll = np.concatenate([results[key]['latent_state'] for key in results], axis=0)
     nFramesEachSession = np.array([results[key]['latent_state'].shape[0] for key in results])
-    cumFramesEachSession = np.array([0]+[np.sum(nFramesEachSession[:i+1]) for i in range(len(nFramesEachSession)-1)])
+    cumFramesEachSession = np.insert(np.cumsum(nFramesEachSession), 0, 0)
 
-    print(f"[INFO] Computing UMAP ({len(latentsAll)} frames)...")
-    reducer = umap.UMAP(n_components=2, random_state=42)
-    u_emb = reducer.fit_transform(latentsAll)
-    ylims = [np.min(u_emb[:,1]),np.max(u_emb[:,1])]
-    xlims = [np.min(u_emb[:,0]),np.max(u_emb[:,0])]
+    print(f"[INFO] Computing 2D UMAP ({len(latentsAll)} frames)...")
+    reducer_2d = umap.UMAP(n_components=2, random_state=42, verbose=True,n_jobs=-1)
+    u_emb_2d = reducer_2d.fit_transform(latentsAll)
+    
+    print(f"[INFO] Computing 3D UMAP ({len(latentsAll)} frames)...")
+    reducer_3d = umap.UMAP(n_components=3, random_state=42,verbose=True,n_jobs=-1)
+    u_emb_3d = reducer_3d.fit_transform(latentsAll)
+    
+    xlims = [np.min(u_emb_2d[:,0]), np.max(u_emb_2d[:,0])]
+    ylims = [np.min(u_emb_2d[:,1]), np.max(u_emb_2d[:,1])]
+
+    # # Explicitly clear massive arrays and run garbage collection
+    # del latentsAll
+    # gc.collect()
+    
+    colors = np.vstack([mpl.colormaps['tab20'].colors,
+                            mpl.colormaps['tab20b'].colors,
+                            mpl.colormaps['Pastel1'].colors,
+                            mpl.colormaps['Pastel2'].colors,
+                            mpl.colormaps['Set2'].colors,
+                            mpl.colormaps['Set3'].colors])
+    cmap = mpl.colors.ListedColormap(colors)
     
     for inds, (session_key, data) in enumerate(results.items()):
         if 'latent_state' not in data or 'syllable' not in data:
@@ -122,25 +147,27 @@ def generate_session_umaps(results: dict, project_dir: str, model_name: str):
             continue
             
         syllables = data['syllable']
-        u_embThisSession = u_emb[cumFramesEachSession[inds]:cumFramesEachSession[inds]+nFramesEachSession[inds],:]
+        start_idx = cumFramesEachSession[inds]
+        end_idx = start_idx + nFramesEachSession[inds]
         
+        u_embThisSession_2d = u_emb_2d[start_idx:end_idx, :]
+        u_embThisSession_3d = u_emb_3d[start_idx:end_idx, :]
         
-        plt.figure(figsize=(10, 8), facecolor="white")
+        # Add these lines to align array lengths
+        min_len = min(len(u_embThisSession_2d), len(syllables))
+        u_embThisSession_2d = u_embThisSession_2d[:min_len]
+        u_embThisSession_3d = u_embThisSession_3d[:min_len]
+        syllables = syllables[:min_len]
+        
         unique_syls = np.unique(syllables)
         unique_syls = unique_syls[unique_syls >= 0]
         
-        colors = np.vstack([mpl.colormaps['tab20'].colors,
-                            mpl.colormaps['tab20b'].colors,
-                            mpl.colormaps['Pastel1'].colors,
-                            mpl.colormaps['Pastel2'].colors])
-        
-        cmap = mpl.colors.ListedColormap(colors)
-        
-
+        # --- 2D Matplotlib Plot ---
+        plt.figure(figsize=(12, 8), facecolor="white")
         scatter = plt.scatter(
-            u_embThisSession[:, 0], 
-            u_embThisSession[:, 1], 
-            c= syllables, 
+            u_embThisSession_2d[:, 0], 
+            u_embThisSession_2d[:, 1], 
+            c=syllables, 
             cmap=cmap, 
             s=8, 
             vmin=0,
@@ -151,25 +178,61 @@ def generate_session_umaps(results: dict, project_dir: str, model_name: str):
         plt.xlim(xlims)
         plt.ylim(ylims)
         
-        # Pass unique_syls to the 'num' parameter to force a handle for every syllable
         handles, _ = scatter.legend_elements(prop="colors", alpha=1, num=len(unique_syls))
         labels = [f"Syl {s}" for s in unique_syls]
         
-        maxN=colors.shape[0]
+        maxN = colors.shape[0]
         if len(handles) > maxN:
             handles, labels = handles[:maxN], labels[:maxN]
             labels[-1] = "..."
             
-            
-        plt.legend(handles, labels, loc="upper right", bbox_to_anchor=(1.15, 1), fontsize=8, ncol=1)
+        plt.legend(handles, labels, loc="upper right", bbox_to_anchor=(1.15, 1), fontsize=8, ncol=2)
         plt.title(f"UMAP Latent Space - {session_key}")
         plt.axis("off")
         plt.tight_layout()
+        plt.gcf().subplots_adjust(right=0.9)
         
-        out_file = out_dir / f"{session_key}_umap.png"
-        plt.savefig(out_file, dpi=300, bbox_inches="tight")
+        out_file_2d = out_dir / f"{session_key}_umap.png"
+        plt.savefig(out_file_2d, dpi=300, bbox_inches="tight")
         plt.close()
-        print(f"[INFO] Saved {out_file}")
+        
+        # --- 3D Interactive Plot ---
+        # Subsample to prevent WebGL/RAM crashes in browser for massive sessions
+        n_frames = len(u_embThisSession_3d)
+        if n_frames > max_3d_points:
+            step = n_frames // max_3d_points
+            u_plot_3d = u_embThisSession_3d[::step]
+            syl_plot = syllables[::step]
+        else:
+            u_plot_3d = u_embThisSession_3d
+            syl_plot = syllables
+
+        df_3d = pd.DataFrame({
+            'UMAP 1': u_plot_3d[:, 0],
+            'UMAP 2': u_plot_3d[:, 1],
+            'UMAP 3': u_plot_3d[:, 2],
+            'Syllable': syl_plot.astype(str) 
+        })
+        
+        # Plotly Express natively handles discrete coloring when passed strings
+        fig = px.scatter_3d(
+            df_3d, x='UMAP 1', y='UMAP 2', z='UMAP 3', 
+            color='Syllable', opacity=0.7
+        )
+        fig.update_traces(marker=dict(size=3))
+        fig.update_layout(
+            title=f"3D UMAP - {session_key}", 
+            margin=dict(l=0, r=0, b=0, t=30)
+        )
+        
+        out_file_3d = out_dir / f"{session_key}_umap_3d.html"
+        # Exporting with CDN prevents a 3MB javascript bundle from inflating every HTML file
+        fig.write_html(out_file_3d, include_plotlyjs='cdn')
+        
+        del fig
+        gc.collect()
+
+        print(f"[INFO] Saved 2D and 3D umaps for {session_key}")
 
 base_path_str = "/home/rza/Research/smearlab/clickbait-loco/thermister/"
 
@@ -190,6 +253,13 @@ config = lambda: kpms.load_config(project_dir)
 keypoint_data_path = sleap_files  # can be a file, a directory, or a list of files
 coordinates, confidences, bodyparts = kpms.load_keypoints(keypoint_data_path, "sleap")
 
+coordinates, confidences = kpms.outlier_removal(
+    coordinates,
+    confidences,
+    project_dir,
+    overwrite=False,
+    **config()
+)
 
 # # load the most recent model checkpoint
 # model, data, metadata, current_iter = kpms.load_checkpoint(project_dir, model_name)
@@ -208,4 +278,4 @@ results = kpms.load_results(project_dir, model_name)
 # kpms.generate_grid_movies(results, project_dir, model_name, 
 #                           overlay_keypoints=True,coordinates=coordinates, **config());
 
-generate_session_umaps(results,project_dir,model_name)
+generate_session_umaps(results,project_dir,model_name,subset=subset)
